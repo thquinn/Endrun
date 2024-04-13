@@ -19,7 +19,6 @@ public class MoveUIScript : MonoBehaviour
 
     Unit unit;
     NavMeshAgent agent;
-    float maxDistance;
     public LayerMask layerMaskChunks;
 
     void Start() {
@@ -32,7 +31,6 @@ public class MoveUIScript : MonoBehaviour
     }
     void Set(GameObject moving) {
         agent = moving.GetComponent<NavMeshAgent>();
-        maxDistance = 7;
         // Build move preview.
         HashSet<Vector2Int> coorsSeen = new HashSet<Vector2Int>();
         Dictionary<Vector2Int, Vector3> coorsPathable = new Dictionary<Vector2Int, Vector3>();
@@ -60,7 +58,7 @@ public class MoveUIScript : MonoBehaviour
                     Debug.Log("!");
                 }
                 if (path.status != NavMeshPathStatus.PathComplete) continue;
-                if (NavMeshUtil.GetPathLength(path) <= maxDistance) {
+                if (NavMeshUtil.GetPathLength(path) <= unit.movement.x) {
                     coorsPathable.Add(neighbor, navMeshHit.position);
                     queue.Enqueue(neighbor);
                 }
@@ -134,12 +132,20 @@ public class MoveUIScript : MonoBehaviour
     }
 
     void Update() {
-        if (GameStateManagerScript.instance.activeUnit != unit) {
-            unit = GameStateManagerScript.instance.activeUnit;
+        Unit unitToShow = GameStateManagerScript.instance.activeUnit;
+        if (unitToShow != null && (GameStateManagerScript.instance.animationManager.IsUnitAnimating(unitToShow) || unitToShow.movement.x <= 0)) {
+            unitToShow = null;
+        }
+        if (unitToShow != unit) {
+            unit = unitToShow;
             if (unit != null) {
                 Set(GameStateManagerScript.instance.unitScripts[unit].gameObject);
             }
         }
+        meshFilter.gameObject.SetActive(unit != null);
+        lineRenderer.gameObject.SetActive(unit != null);
+        pathFinish.SetActive(unit != null);
+        pathCircle.SetActive(unit != null);
         if (unit == null) {
             return;
         }
@@ -151,7 +157,8 @@ public class MoveUIScript : MonoBehaviour
         } else {
             path = new NavMeshPath();
             NavMesh.CalculatePath(agent.transform.position, target, NavMesh.AllAreas, path);
-            if (NavMeshUtil.GetPathLength(path) > maxDistance) {
+            float pathLength = NavMeshUtil.GetPathLength(path);
+            if (pathLength > unit.movement.x || path.corners.Length < 2) {
                 ClearPathPreview();
             } else {
                 float displayRadius = Mathf.Min(Vector3.Distance(path.corners[0], path.corners[1]), 1f);
@@ -167,7 +174,7 @@ public class MoveUIScript : MonoBehaviour
             }
         }
         if (path != null && Input.GetMouseButtonDown(0)) {
-            GameStateManagerScript.instance.EnqueueAnimation(new MoveAnimation(unit, path));
+            unit.Move(path);
         }
     }
     void ClearPathPreview() {

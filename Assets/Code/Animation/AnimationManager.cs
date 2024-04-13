@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Code.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,6 +25,10 @@ namespace Assets.Code.Animation
 
         public void Enqueue(AnimationBase animation) {
             animations.Add(animation);
+        }
+
+        public bool IsUnitAnimating(Unit unit) {
+            return animations.Count > 0 && animations[0].IsUnitAnimating(unit);
         }
     }
 }

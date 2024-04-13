@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class UnitScript : MonoBehaviour
 {
-    Unit unit;
+    public Unit unit;
 
     public void Init(Unit unit) {
         this.unit = unit;

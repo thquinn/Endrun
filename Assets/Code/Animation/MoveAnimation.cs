@@ -24,5 +24,9 @@ namespace Assets.Code.Animation
             base.Update();
             unitScript.transform.localPosition = NavMeshUtil.GetPointAlongPath(navMeshPath, time.x / time.y);
         }
+
+        public override bool IsUnitAnimating(Unit unit) {
+            return unit == unitScript.unit;
+        }
     }
 }

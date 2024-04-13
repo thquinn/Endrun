@@ -30,7 +30,7 @@ namespace Assets.Code
                 float segment = Vector2.Distance(a, b);
                 if (remaining <= segment) {
                     float t = remaining / segment;
-                    return Vector2.Lerp(a, b, t);
+                    return Vector3.Lerp(path.corners[i], path.corners[i + 1], t);
                 }
                 remaining -= segment;
             }

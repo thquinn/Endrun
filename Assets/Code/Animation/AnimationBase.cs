@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Code.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,6 +19,9 @@ namespace Assets.Code.Animation
         }
         public bool IsDone() {
             return time.x >= time.y;
+        }
+        public virtual bool IsUnitAnimating(Unit unit) {
+            return false;
         }
     }
 }

@@ -1,10 +1,12 @@
-﻿using Assets.Code.Model.Traits;
+﻿using Assets.Code.Animation;
+using Assets.Code.Model.Traits;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace Assets.Code.Model
 {
@@ -21,6 +23,15 @@ namespace Assets.Code.Model
             this.playerControlled = playerControlled;
             this.position = position;
             this.traits = new List<Trait>(traits);
+            movement = new Vector2(8, 8);
+        }
+
+        public void Move(NavMeshPath path) {
+            GameStateManagerScript.instance.EnqueueAnimation(new MoveAnimation(this, path));
+            movement.x -= NavMeshUtil.GetPathLength(path);
+            if (movement.x < .5f) {
+                movement.x = 0;
+            }
         }
     }
 }
