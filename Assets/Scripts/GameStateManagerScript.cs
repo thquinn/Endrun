@@ -1,6 +1,5 @@
 using Assets.Code.Animation;
 using Assets.Code.Model;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -12,14 +11,12 @@ public class GameStateManagerScript : MonoBehaviour
     public GameObject prefabUnit;
 
     public GameState gameState;
-    public Unit activeUnit;
     public Dictionary<Unit, UnitScript> unitScripts;
     public AnimationManager animationManager;
 
     void Start() {
         instance = this;
         gameState = new GameState();
-        activeUnit = gameState.units[0];
         unitScripts = new Dictionary<Unit, UnitScript>();
         animationManager = new AnimationManager();
     }
@@ -37,6 +34,10 @@ public class GameStateManagerScript : MonoBehaviour
             unitScripts.Remove(unit);
         }
         animationManager.Update();
+    }
+
+    public Unit GetSelectedUnit() {
+        return gameState.units[0];
     }
 
     public void EnqueueAnimation(AnimationBase animation) {

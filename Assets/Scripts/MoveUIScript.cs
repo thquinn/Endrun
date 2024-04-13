@@ -132,7 +132,7 @@ public class MoveUIScript : MonoBehaviour
     }
 
     void Update() {
-        Unit unitToShow = GameStateManagerScript.instance.activeUnit;
+        Unit unitToShow = GameStateManagerScript.instance.GetSelectedUnit();
         if (unitToShow != null && (GameStateManagerScript.instance.animationManager.IsUnitAnimating(unitToShow) || unitToShow.movement.x <= 0)) {
             unitToShow = null;
         }
@@ -152,20 +152,22 @@ public class MoveUIScript : MonoBehaviour
 
         Vector3 target = Util.GetMouseCollisionPoint(layerMaskChunks);
         NavMeshPath path = null;
+        float pathLength = 0;
         if (target == Vector3.zero) {
             ClearPathPreview();
         } else {
             path = new NavMeshPath();
-            NavMesh.CalculatePath(agent.transform.position, target, NavMesh.AllAreas, path);
-            float pathLength = NavMeshUtil.GetPathLength(path);
+            agent.CalculatePath(target, path);
+            pathLength = NavMeshUtil.GetPathLength(path);
             if (pathLength > unit.movement.x || path.corners.Length < 2) {
                 ClearPathPreview();
             } else {
-                float displayRadius = Mathf.Min(Vector3.Distance(path.corners[0], path.corners[1]), 1f);
-                path.corners[0] = Vector3.MoveTowards(path.corners[0], path.corners[1], displayRadius);
-                lineRenderer.positionCount = path.corners.Length;
-                lineRenderer.SetPositions(path.corners);
-                Vector3 pathEnd = path.corners[path.corners.Length - 1];
+                Vector3[] displayPath = path.corners.Clone() as Vector3[];
+                float displayRadius = Mathf.Min(Vector3.Distance(displayPath[0], displayPath[1]), 1f);
+                displayPath[0] = Vector3.MoveTowards(displayPath[0], displayPath[1], displayRadius);
+                lineRenderer.positionCount = displayPath.Length;
+                lineRenderer.SetPositions(displayPath);
+                Vector3 pathEnd = displayPath[displayPath.Length - 1];
                 pathFinish.SetActive(true);
                 pathFinish.transform.position = pathEnd;
                 pathCircle.SetActive(true);
@@ -173,7 +175,7 @@ public class MoveUIScript : MonoBehaviour
                 pathCircle.transform.localScale = new Vector3(agent.radius * 2, agent.radius * 2, 1);
             }
         }
-        if (path != null && Input.GetMouseButtonDown(0)) {
+        if (path != null && Input.GetMouseButtonDown(0) && pathLength <= unit.movement.x) {
             unit.Move(path);
         }
     }

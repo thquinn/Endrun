@@ -9,11 +9,11 @@ using UnityEngine.AI;
 namespace Assets.Code.Animation
 {
     public class MoveAnimation : AnimationBase {
-        UnitScript unitScript;
+        Unit unit;
         NavMeshPath navMeshPath;
 
         public MoveAnimation(Unit unit, NavMeshPath navMeshPath) : base(CalculateDuration(navMeshPath)) {
-            unitScript = GameStateManagerScript.instance.unitScripts[unit];
+            this.unit = unit;
             this.navMeshPath = navMeshPath;
         }
         static float CalculateDuration(NavMeshPath navMeshPath) {
@@ -22,11 +22,11 @@ namespace Assets.Code.Animation
 
         public override void Update() {
             base.Update();
-            unitScript.transform.localPosition = NavMeshUtil.GetPointAlongPath(navMeshPath, time.x / time.y);
+            unit.position = NavMeshUtil.GetPointAlongPath(navMeshPath, time.x / time.y);
         }
 
         public override bool IsUnitAnimating(Unit unit) {
-            return unit == unitScript.unit;
+            return unit == this.unit;
         }
     }
 }
