@@ -48,7 +48,7 @@ public class CameraScript : MonoBehaviour
         Bounds bounds = new Bounds();
         foreach (GameObject go in gameObject.scene.GetRootGameObjects()) {
             if (go.layer == chunksLayer) {
-                Bounds chunkBounds = go.GetComponent<MeshCollider>().bounds;
+                Bounds chunkBounds = go.GetComponent<Collider>().bounds;
                 bounds.Encapsulate(chunkBounds.min);
                 bounds.Encapsulate(chunkBounds.max);
             }

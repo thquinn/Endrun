@@ -21,11 +21,31 @@ namespace Assets.Code
             }
             return total;
         }
-        public static NavMeshHit GetNavMeshXZ(Vector2 xz) {
-            Vector3 xyz = new Vector3(xz.x, 20, xz.y);
-            NavMeshHit hit;
-            NavMesh.Raycast(xyz, xyz + Vector3.down * 20, out hit, NavMesh.AllAreas);
-            return hit;
+        public static Vector3 GetPointAlongPath(NavMeshPath path, float percentage) {
+            float length = GetPathLength(path);
+            float remaining = percentage * length;
+            for (int i = 0; i < path.corners.Length - 1; i++) {
+                Vector2 a = new Vector2(path.corners[i].x, path.corners[i].z);
+                Vector2 b = new Vector2(path.corners[i + 1].x, path.corners[i + 1].z);
+                float segment = Vector2.Distance(a, b);
+                if (remaining <= segment) {
+                    float t = remaining / segment;
+                    return Vector2.Lerp(a, b, t);
+                }
+                remaining -= segment;
+            }
+            return path.corners[path.corners.Length - 1];
+        }
+        static int layerMaskChunks;
+        public static Vector3 GetChunksNormal(Vector3 v) {
+            if (layerMaskChunks == 0) {
+                layerMaskChunks = LayerMask.NameToLayer("Chunks");
+            }
+            Vector3 xyz = v + Vector3.up;
+            Ray ray = new Ray(xyz, Vector3.down);
+            RaycastHit hit;
+            Physics.Raycast(ray, out hit, layerMaskChunks);
+            return hit.normal;
         }
     }
 }
