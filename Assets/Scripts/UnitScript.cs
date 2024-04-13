@@ -7,6 +7,7 @@ using UnityEngine.AI;
 public class UnitScript : MonoBehaviour
 {
     public NavMeshAgent navMeshAgent;
+    public NavMeshObstacle navMeshObstacle;
 
     public Unit unit;
 
@@ -18,8 +19,18 @@ public class UnitScript : MonoBehaviour
         navMeshAgent.Warp(transform.localPosition);
     }
 
-    void Update()
-    {
+    void Update() {
         transform.localPosition = unit.position;
+    }
+
+    public void ToggleCollider(Unit activeUnit) {
+        if (unit == activeUnit) {
+            navMeshObstacle.enabled = false;
+            navMeshAgent.enabled = true;
+        } else {
+            // order matters to avoid getting an annoying warning :|
+            navMeshAgent.enabled = false;
+            navMeshObstacle.enabled = true;
+        }
     }
 }

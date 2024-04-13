@@ -9,6 +9,8 @@ using UnityEngine.AI;
 namespace Assets.Code.Animation
 {
     public class MoveAnimation : AnimationBase {
+        static float SPEED = 20f;
+
         Unit unit;
         NavMeshPath navMeshPath;
 
@@ -17,7 +19,7 @@ namespace Assets.Code.Animation
             this.navMeshPath = navMeshPath;
         }
         static float CalculateDuration(NavMeshPath navMeshPath) {
-            return NavMeshUtil.GetPathLength(navMeshPath) * .1f;
+            return NavMeshUtil.GetPathLength(navMeshPath) / SPEED;
         }
 
         public override void Update() {
@@ -25,8 +27,10 @@ namespace Assets.Code.Animation
             unit.position = NavMeshUtil.GetPointAlongPath(navMeshPath, time.x / time.y);
         }
 
-        public override bool IsUnitAnimating(Unit unit) {
-            return unit == this.unit;
+        public override void Finish() {
+            if (unit.movement.x <= 0) {
+                unit.EndTurn();
+            }
         }
     }
 }

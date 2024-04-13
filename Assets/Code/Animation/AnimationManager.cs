@@ -19,6 +19,7 @@ namespace Assets.Code.Animation
             AnimationBase current = animations[0];
             current.Update();
             if (current.IsDone()) {
+                current.Finish();
                 animations.RemoveAt(0);
             }
         }
@@ -27,8 +28,8 @@ namespace Assets.Code.Animation
             animations.Add(animation);
         }
 
-        public bool IsUnitAnimating(Unit unit) {
-            return animations.Count > 0 && animations[0].IsUnitAnimating(unit);
+        public bool AnyUnitMoving() {
+            return animations.Count > 0 && animations[0] is MoveAnimation;
         }
     }
 }

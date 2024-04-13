@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Code.Model.GameEvents;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,10 +9,12 @@ using UnityEngine;
 namespace Assets.Code.Model
 {
     public class GameState {
+        public GameEventManager gameEventManager;
         public List<Chunk> chunks;
         public List<Unit> units;
 
         public GameState() {
+            gameEventManager = new GameEventManager();
             chunks = new List<Chunk>();
             chunks.Add(new Chunk(0, false));
             units = new List<Unit>();

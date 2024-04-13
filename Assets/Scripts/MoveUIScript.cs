@@ -20,6 +20,7 @@ public class MoveUIScript : MonoBehaviour
     Unit unit;
     NavMeshAgent agent;
     public LayerMask layerMaskChunks;
+    bool rebuildMesh;
 
     void Start() {
         Gradient gradient = new Gradient();
@@ -29,8 +30,7 @@ public class MoveUIScript : MonoBehaviour
             );
         lineRenderer.colorGradient = gradient;
     }
-    void Set(GameObject moving) {
-        agent = moving.GetComponent<NavMeshAgent>();
+    void BuildPreviewMesh() {
         // Build move preview.
         HashSet<Vector2Int> coorsSeen = new HashSet<Vector2Int>();
         Dictionary<Vector2Int, Vector3> coorsPathable = new Dictionary<Vector2Int, Vector3>();
@@ -54,9 +54,6 @@ public class MoveUIScript : MonoBehaviour
                 Vector2 xzDistance = new Vector2(worldSpace.x - navMeshHit.position.x, worldSpace.z - navMeshHit.position.z);
                 if (xzDistance.magnitude > GRID_SIZE * 1.5f) continue;
                 NavMesh.CalculatePath(agent.transform.position, navMeshHit.position, NavMesh.AllAreas, path);
-                if (Mathf.Abs(navMeshHit.position.x) < .1f && Mathf.Abs(navMeshHit.position.z - 3) < .1f) {
-                    Debug.Log("!");
-                }
                 if (path.status != NavMeshPathStatus.PathComplete) continue;
                 if (NavMeshUtil.GetPathLength(path) <= unit.movement.x) {
                     coorsPathable.Add(neighbor, navMeshHit.position);
@@ -64,9 +61,9 @@ public class MoveUIScript : MonoBehaviour
                 }
             }
         }
-        SetPreviewMesh(coorsPathable);
+        PreviewMeshHelper(coorsPathable);
     }
-    void SetPreviewMesh(Dictionary<Vector2Int, Vector3> coors) {
+    void PreviewMeshHelper(Dictionary<Vector2Int, Vector3> coors) {
         Vector3[] vertices = new Vector3[coors.Count];
         Dictionary<Vector2Int, int> indices = new Dictionary<Vector2Int, int>();
         foreach (var kvp in coors) {
@@ -114,7 +111,7 @@ public class MoveUIScript : MonoBehaviour
     }
     void AddTriangleIfNormalAligned(Dictionary<Vector2Int, Vector3> coors, List<int> triangles, Dictionary<Vector2Int, int> indices, Vector2Int a, Vector2Int b, Vector2Int c) {
         int iA = indices[a], iB = indices[b], iC = indices[c];
-        // This is to avoid making step (i.e. stepping up onto a ledge) previews look terrible; let's just not have any stepping.
+        // This is to avoid making step previews (i.e. stepping up onto a ledge) look terrible; let's just not have any stepping.
         /*
         Vector3 vA = coors[a], vB = coors[b], vC = coors[c];
         Vector3 center = (vA + vB + vC) / 3;
@@ -132,14 +129,19 @@ public class MoveUIScript : MonoBehaviour
     }
 
     void Update() {
-        Unit unitToShow = GameStateManagerScript.instance.GetSelectedUnit();
-        if (unitToShow != null && (GameStateManagerScript.instance.animationManager.IsUnitAnimating(unitToShow) || unitToShow.movement.x <= 0)) {
+        if (rebuildMesh && unit != null) {
+            BuildPreviewMesh();
+        }
+        Unit unitToShow = GameStateManagerScript.instance.GetActiveUnit();
+        if (unitToShow != null && (GameStateManagerScript.instance.animationManager.AnyUnitMoving() || unitToShow.movement.x <= 0)) {
             unitToShow = null;
         }
         if (unitToShow != unit) {
             unit = unitToShow;
             if (unit != null) {
-                Set(GameStateManagerScript.instance.unitScripts[unit].gameObject);
+                agent = GameStateManagerScript.instance.unitScripts[unit].GetComponent<NavMeshAgent>();
+                meshFilter.mesh = null;
+                rebuildMesh = true; // wait 1 frame for navmesh to rebuild
             }
         }
         meshFilter.gameObject.SetActive(unit != null);

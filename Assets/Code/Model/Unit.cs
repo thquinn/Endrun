@@ -1,4 +1,5 @@
 ﻿using Assets.Code.Animation;
+using Assets.Code.Model.GameEvents;
 using Assets.Code.Model.Traits;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,6 @@ namespace Assets.Code.Model
             movement.x -= NavMeshUtil.GetPathLength(path);
             if (movement.x < 1f) {
                 movement.x = 0;
-                EndTurn();
             }
         }
         public void EndTurn() {
@@ -44,6 +44,9 @@ namespace Assets.Code.Model
             foreach (Unit unit in gameState.units) {
                 unit.ticksUntilTurn -= tickDecrement;
             }
+            gameState.gameEventManager.Trigger(new GameEvent() {
+                type = GameEventType.TurnEnd,
+            });
         }
         void SetTicks(int desiredTicks) {
             // Sets ticksUntilTurn to the desired number, unless another unit already has that exact value.

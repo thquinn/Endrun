@@ -1,8 +1,12 @@
 using Assets.Code.Animation;
 using Assets.Code.Model;
+using Assets.Code.Model.GameEvents;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.AI.Navigation;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class GameStateManagerScript : MonoBehaviour
 {
@@ -18,10 +22,21 @@ public class GameStateManagerScript : MonoBehaviour
         instance = this;
         gameState = new GameState();
         unitScripts = new Dictionary<Unit, UnitScript>();
+        SyncUnits();
         animationManager = new AnimationManager();
+        UpdateNavMesh(null);
+        Listen(
+            GameEventType.TurnEnd,
+            null,
+            UpdateNavMesh
+        );
     }
 
     void Update() {
+        SyncUnits();
+        animationManager.Update();
+    }
+    void SyncUnits() {
         foreach (Unit unit in gameState.units) {
             if (!unitScripts.ContainsKey(unit)) {
                 UnitScript unitScript = Instantiate(prefabUnit).GetComponent<UnitScript>();
@@ -33,13 +48,23 @@ public class GameStateManagerScript : MonoBehaviour
         foreach (Unit unit in nulls) {
             unitScripts.Remove(unit);
         }
-        animationManager.Update();
     }
 
-    public Unit GetSelectedUnit() {
+    bool UpdateNavMesh(GameEvent e) {
+        Unit activeUnit = GetActiveUnit();
+        foreach (UnitScript unitScript in unitScripts.Values) {
+            unitScript.ToggleCollider(activeUnit);
+        }
+        return false;
+    }
+
+    public Unit GetActiveUnit() {
         return gameState.units[0];
     }
 
+    public void Listen(GameEventType type, Predicate<GameEvent> predicate, Func<GameEvent, bool> func) {
+        gameState.gameEventManager.Listen(type, predicate, func);
+    }
     public void EnqueueAnimation(AnimationBase animation) {
         animationManager.Enqueue(animation);
     }

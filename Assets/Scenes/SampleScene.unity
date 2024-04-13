@@ -710,7 +710,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   minDistance: 8
-  maxDistance: 20
+  maxDistance: 24
   sensitivity: 0.1
   scrollSensitivity: 0.9
 --- !u!1 &1948377642
@@ -1143,8 +1143,8 @@ SceneRoots:
   m_Roots:
   - {fileID: 963194228}
   - {fileID: 705507995}
-  - {fileID: 8303388233845637561}
+  - {fileID: 2007235948}
   - {fileID: 263671693}
   - {fileID: 1969094187}
+  - {fileID: 8303388233845637561}
   - {fileID: 45202443}
-  - {fileID: 2007235948}
