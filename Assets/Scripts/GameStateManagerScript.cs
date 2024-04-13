@@ -24,12 +24,14 @@ public class GameStateManagerScript : MonoBehaviour
         unitScripts = new Dictionary<Unit, UnitScript>();
         SyncUnits();
         animationManager = new AnimationManager();
-        UpdateNavMesh(null);
         Listen(
-            GameEventType.TurnEnd,
+            GameEventType.TurnStart,
             null,
             UpdateNavMesh
         );
+        gameState.gameEventManager.Trigger(new GameEvent() {
+            type = GameEventType.TurnStart,
+        });
     }
 
     void Update() {
@@ -44,8 +46,9 @@ public class GameStateManagerScript : MonoBehaviour
                 unitScripts[unit] = unitScript;
             }
         }
-        var nulls = unitScripts.Where(kvp => kvp.Value == null).Select(kvp => kvp.Key);
+        var nulls = unitScripts.Keys.Where(u => !gameState.units.Contains(u));
         foreach (Unit unit in nulls) {
+            Destroy(unitScripts[unit].gameObject);
             unitScripts.Remove(unit);
         }
     }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class UMAIcosahedron : MonoBehaviour
 {
-    static float SPEED = 20;
+    static float SPEED = 40;
 
     Vector3 initialPosition;
     Vector3 axis;
@@ -15,10 +15,10 @@ public class UMAIcosahedron : MonoBehaviour
         float x = Random.Range(0, 2 * Mathf.PI);
         float y = Random.Range(0, 2 * Mathf.PI);
         float z = Random.Range(0, 2 * Mathf.PI);
-        Vector3 axis = new Vector3(x, y, z);
-        dx = Random.Range(1f, 2f) * Random.value < .5f ? -10 : 10;
-        dy = Random.Range(1f, 2f) * Random.value < .5f ? -10 : 10;
-        dz = Random.Range(1f, 2f) * Random.value < .5f ? -10 : 10;
+        axis = new Vector3(x, y, z);
+        dx = Random.Range(1f, 2f) * Random.value < .5f ? -20 : 20;
+        dy = Random.Range(1f, 2f) * Random.value < .5f ? -20 : 20;
+        dz = Random.Range(1f, 2f) * Random.value < .5f ? -20 : 20;
     }
 
     void Update() {

@@ -16,25 +16,33 @@ namespace Assets.Code.Model
         public bool isSummoner;
         public bool playerControlled;
         public Vector3 position;
-        public List<Trait> traits;
         public int ticksUntilTurn;
+        // From template:
+        public List<Trait> traits;
+        public string name;
+        public int focusCost;
         public Vector2Int hp;
         public Vector2 movement;
 
-        public Unit(GameState gameState, bool playerControlled, Vector3 position, params Trait[] traits) {
+        public Unit(GameState gameState, UnitControlType type, Vector3 position, UnitTemplate template) {
             this.gameState = gameState;
-            this.playerControlled = playerControlled;
+            isSummoner = type == UnitControlType.Summoner;
+            playerControlled = type != UnitControlType.Enemy;
             this.position = position;
-            this.traits = new List<Trait>(traits);
-            movement = new Vector2(8, 8);
+            // Copy template.
+            traits = new List<Trait>(template.traits);
+            name = template.name;
+            hp = template.hp;
+            movement = template.movement;
         }
 
         public void Move(NavMeshPath path) {
-            GameStateManagerScript.instance.EnqueueAnimation(new MoveAnimation(this, path));
-            movement.x -= NavMeshUtil.GetPathLength(path);
-            if (movement.x < 1f) {
-                movement.x = 0;
+            float length = NavMeshUtil.GetPathLength(path);
+            if (length >= movement.x - 1.5f) {
+                length = movement.x;
             }
+            movement.x -= length;
+            GameStateManagerScript.instance.EnqueueAnimation(new MoveAnimation(this, path, length));
         }
         public void EndTurn() {
             movement.x = movement.y;
@@ -45,7 +53,7 @@ namespace Assets.Code.Model
                 unit.ticksUntilTurn -= tickDecrement;
             }
             gameState.gameEventManager.Trigger(new GameEvent() {
-                type = GameEventType.TurnEnd,
+                type = GameEventType.TurnStart,
             });
         }
         void SetTicks(int desiredTicks) {
@@ -56,5 +64,9 @@ namespace Assets.Code.Model
             }
             ticksUntilTurn = desiredTicks;
         }
+    }
+
+    public enum UnitControlType {
+        Summoner, Ally, Enemy
     }
 }

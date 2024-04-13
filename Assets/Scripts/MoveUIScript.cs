@@ -31,6 +31,9 @@ public class MoveUIScript : MonoBehaviour
         lineRenderer.colorGradient = gradient;
     }
     void BuildPreviewMesh() {
+        if (unit.movement.x < 1.5f) {
+            return;
+        }
         // Build move preview.
         HashSet<Vector2Int> coorsSeen = new HashSet<Vector2Int>();
         Dictionary<Vector2Int, Vector3> coorsPathable = new Dictionary<Vector2Int, Vector3>();
@@ -52,7 +55,7 @@ public class MoveUIScript : MonoBehaviour
                 NavMesh.SamplePosition(worldSpace, out navMeshHit, 3f, NavMesh.AllAreas);
                 if (!navMeshHit.hit) continue;
                 Vector2 xzDistance = new Vector2(worldSpace.x - navMeshHit.position.x, worldSpace.z - navMeshHit.position.z);
-                if (xzDistance.magnitude > GRID_SIZE * 1.5f) continue;
+                if (xzDistance.magnitude > GRID_SIZE * 1.25f) continue;
                 NavMesh.CalculatePath(agent.transform.position, navMeshHit.position, NavMesh.AllAreas, path);
                 if (path.status != NavMeshPathStatus.PathComplete) continue;
                 if (NavMeshUtil.GetPathLength(path) <= unit.movement.x) {

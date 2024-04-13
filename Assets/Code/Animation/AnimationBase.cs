@@ -20,9 +20,9 @@ namespace Assets.Code.Animation
         public bool IsDone() {
             return time.x >= time.y;
         }
+        
         public virtual void Finish() { }
-        public virtual bool IsUnitAnimating(Unit unit) {
-            return false;
-        }
+        public virtual bool EndTurnOnFinish() { return false; }
+        public virtual bool IsUnitAnimating(Unit unit) { return false; }
     }
 }
