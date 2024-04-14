@@ -5,9 +5,8 @@ using Assets.Code.Model.GameEvents;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.AI.Navigation;
 using UnityEngine;
-using UnityEngine.AI;
+using Force.DeepCloner;
 
 public class GameStateManagerScript : MonoBehaviour
 {
@@ -21,6 +20,8 @@ public class GameStateManagerScript : MonoBehaviour
     public Dictionary<Collider, Unit> unitColliders;
     public AnimationManager animationManager;
     public Unit hoveredUnit;
+
+    GameState savedState;
 
     void Start() {
         instance = this;
@@ -41,6 +42,12 @@ public class GameStateManagerScript : MonoBehaviour
     }
 
     void Update() {
+        if (Input.GetKeyDown(KeyCode.F5)) {
+            savedState = gameState.DeepClone();
+        }
+        else if (Input.GetKeyDown(KeyCode.F8)) {
+            LoadState(savedState);
+        }
         SyncUnits();
         SkillDecision();
         animationManager.Update();
@@ -54,7 +61,7 @@ public class GameStateManagerScript : MonoBehaviour
                 unitColliders[unitScript.GetComponent<Collider>()] = unit;
             }
         }
-        var nulls = unitScripts.Keys.Where(u => !gameState.units.Contains(u));
+        var nulls = unitScripts.Keys.Where(u => !gameState.units.Contains(u)).ToArray();
         foreach (Unit unit in nulls) {
             Destroy(unitScripts[unit].gameObject);
             unitScripts.Remove(unit);
@@ -90,5 +97,12 @@ public class GameStateManagerScript : MonoBehaviour
     }
     public void EnqueueAnimation(AnimationBase animation) {
         animationManager.Enqueue(animation);
+    }
+
+    // Undo support.
+    void LoadState(GameState saved) {
+        gameState = saved;
+        SyncUnits();
+        UpdateNavMesh(null);
     }
 }

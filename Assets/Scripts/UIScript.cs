@@ -41,7 +41,7 @@ public class UIScript : MonoBehaviour
                 leftUnitScripts[unit] = leftUnitScript;
             }
         }
-        var nulls = leftUnitScripts.Keys.Where(u => !units.Contains(u));
+        var nulls = leftUnitScripts.Keys.Where(u => !units.Contains(u)).ToArray();
         foreach (Unit unit in nulls) {
             Destroy(leftUnitScripts[unit].gameObject);
             leftUnitScripts.Remove(unit);
@@ -80,7 +80,7 @@ public class UIScript : MonoBehaviour
                 unitTurnScripts[unit] = uiUnitTurnScript;
             }
         }
-        var nulls = unitTurnScripts.Keys.Where(u => !units.Contains(u));
+        var nulls = unitTurnScripts.Keys.Where(u => !units.Contains(u)).ToArray();
         foreach (Unit unit in nulls) {
             Destroy(unitTurnScripts[unit].gameObject);
             unitTurnScripts.Remove(unit);

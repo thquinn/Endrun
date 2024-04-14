@@ -13,6 +13,7 @@ namespace Assets.Code.Model
 {
     public class Unit {
         public GameState gameState;
+        public int id;
         public bool isSummoner;
         public bool playerControlled;
         public Vector3 position;
@@ -27,6 +28,7 @@ namespace Assets.Code.Model
 
         public Unit(GameState gameState, UnitControlType type, Vector3 position, UnitTemplate template) {
             this.gameState = gameState;
+            id = ID.Get();
             isSummoner = type == UnitControlType.Summoner;
             playerControlled = type != UnitControlType.Enemy;
             this.position = position;
