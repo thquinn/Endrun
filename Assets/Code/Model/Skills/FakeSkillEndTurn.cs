@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 namespace Assets.Code.Model.Skills
 {
     public class FakeSkillEndTurn : ActiveSkill {
-        public FakeSkillEndTurn() : base(-1) {
+        public FakeSkillEndTurn(Unit unit) : base(-1) {
             name = "End Turn";
+            this.unit = unit;
         }
         public FakeSkillEndTurn(FakeSkillEndTurn other) : base(other) { }
         public override Skill Clone() {

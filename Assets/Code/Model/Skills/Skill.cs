@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Code.Model.GameEvents;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -36,9 +37,16 @@ namespace Assets.Code.Model.Skills
             Debug.Assert(type == SkillType.Active);
             return null;
         }
-        public virtual bool Activate() {
+        public virtual bool CanActivate() {
             Debug.Assert(type == SkillType.Active);
             if (RequiresAction() && unit.actions <= 0) {
+                return false;
+            }
+            return true;
+        }
+        public virtual bool Activate() {
+            Debug.Assert(type == SkillType.Active);
+            if (!CanActivate()) {
                 return false;
             }
             if (cooldown > 0) {
@@ -53,12 +61,26 @@ namespace Assets.Code.Model.Skills
             }
             return true;
         }
+        public virtual bool WriteUndoHistory() {
+            return true;
+        }
         public virtual void Resolve(object choice) {
+            unit.gameState.skillDecision = null;
+            if (WriteUndoHistory()) {
+                unit.gameState.gameEventManager.Trigger(new GameEvent() {
+                    type = GameEventType.BeforeResolveSkill,
+                    actionDetail = new ActionDetail() {
+                        type = ActionType.ActivateSkill,
+                        skill = this,
+                    },
+                });
+            }
+        }
+        protected void AfterResolve() {
             if (RequiresAction()) {
                 unit.actions--;
             }
             cooldown = GetActivationCooldown();
-            unit.gameState.skillDecision = null;
         }
     }
 

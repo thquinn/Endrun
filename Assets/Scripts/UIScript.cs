@@ -57,7 +57,8 @@ public class UIScript : MonoBehaviour
             }
             if (activeUnit != null) {
                 List<Skill> skills = new List<Skill>(activeUnit.skills);
-                skills.Insert(0, new FakeSkillEndTurn());
+                skills.Insert(0, new FakeSkillUndo(activeUnit));
+                skills.Insert(1, new FakeSkillEndTurn(activeUnit));
                 for (int i = 0; i < skills.Count; i++) {
                     Instantiate(prefabSkillButton, rtSkillBar).GetComponent<UISkillButtonScript>().Init(skills[i], SKILL_HOTKEYS[i]);
                 }

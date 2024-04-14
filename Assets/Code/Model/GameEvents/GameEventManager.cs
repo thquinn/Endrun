@@ -28,6 +28,19 @@ namespace Assets.Code.Model.GameEvents {
             }
         }
         public void Trigger(GameEvent e) {
+            // HACK: Putting MonoBehaviours in here creates a big problem when it gets DeepClone()d.
+            // Instead, let's just call them dumb-style.
+            if (GameStateManagerScript.instance.gameState.gameEventManager == this) {
+                if (GameStateManagerScript.UNDO_HISTORY_EVENT_TYPES.Contains(e.type)) {
+                    GameStateManagerScript.instance.HandleUndoCheckpointEvent(e);
+                }
+                if (e.type == GameEventType.Damage) {
+                    VFXScript.instance.HandleDamage(e);
+                }
+                else if (e.type == GameEventType.TurnStart) {
+                    GameStateManagerScript.instance.HandleTurnStart(e);
+                }
+            }
             if (handlers.ContainsKey(e.type)) {
                 List<GameEventHandler> eHandlers = new List<GameEventHandler>(handlers[e.type]);
                 for (int i = 0; i < eHandlers.Count; i++) {
@@ -85,6 +98,6 @@ namespace Assets.Code.Model.GameEvents {
         }
     }
     public enum GameEventType {
-        None, Damage, TurnStart
+        None, BeforeMove, BeforeResolveSkill, Damage, TurnStart
     }
 }

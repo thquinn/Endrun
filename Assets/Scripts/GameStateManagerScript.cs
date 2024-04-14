@@ -12,29 +12,26 @@ public class GameStateManagerScript : MonoBehaviour
 {
     public static GameStateManagerScript instance;
 
+    public static GameEventType[] UNDO_HISTORY_EVENT_TYPES = new GameEventType[] { GameEventType.BeforeMove, GameEventType.BeforeResolveSkill };
+
     public GameObject prefabUnit;
     public LayerMask layerMaskUnits;
 
     public GameState gameState;
+    public Stack<GameState> undoHistory;
     public Dictionary<Unit, UnitScript> unitScripts;
     public Dictionary<Collider, Unit> unitColliders;
     public AnimationManager animationManager;
     public Unit hoveredUnit;
 
-    GameState savedState;
-
     void Start() {
         instance = this;
         gameState = new GameState();
+        undoHistory = new Stack<GameState>();
         unitScripts = new Dictionary<Unit, UnitScript>();
         unitColliders = new Dictionary<Collider, Unit>();
         SyncUnits();
         animationManager = new AnimationManager();
-        Listen(
-            GameEventType.TurnStart,
-            null,
-            UpdateNavMesh
-        );
         gameState.gameEventManager.Trigger(new GameEvent() {
             type = GameEventType.TurnStart,
         });
@@ -42,12 +39,6 @@ public class GameStateManagerScript : MonoBehaviour
     }
 
     void Update() {
-        if (Input.GetKeyDown(KeyCode.F5)) {
-            savedState = gameState.DeepClone();
-        }
-        else if (Input.GetKeyDown(KeyCode.F8)) {
-            LoadState(savedState);
-        }
         SyncUnits();
         SkillDecision();
         animationManager.Update();
@@ -80,7 +71,7 @@ public class GameStateManagerScript : MonoBehaviour
         }
     }
 
-    bool UpdateNavMesh(GameEvent e) {
+    bool UpdateNavMesh() {
         Unit activeUnit = GetActiveUnit();
         foreach (UnitScript unitScript in unitScripts.Values) {
             unitScript.ToggleCollider(activeUnit);
@@ -99,10 +90,18 @@ public class GameStateManagerScript : MonoBehaviour
         animationManager.Enqueue(animation);
     }
 
-    // Undo support.
-    void LoadState(GameState saved) {
-        gameState = saved;
+    public void Undo() {
+        if (undoHistory.Count == 0) return;
+        gameState = undoHistory.Pop();
         SyncUnits();
-        UpdateNavMesh(null);
+        UpdateNavMesh();
+    }
+
+    // "Dumb-style" events.
+    public void HandleUndoCheckpointEvent(GameEvent e) {
+        undoHistory.Push(gameState.DeepClone());
+    }
+    public void HandleTurnStart(GameEvent e) {
+        UpdateNavMesh();
     }
 }

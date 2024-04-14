@@ -66,6 +66,10 @@ namespace Assets.Code.Model
         }
 
         public void Move(NavMeshPath path) {
+            gameState.gameEventManager.Trigger(new GameEvent() {
+                type = GameEventType.BeforeMove,
+                unitSource = this,
+            });
             float length = NavMeshUtil.GetPathLength(path);
             if (length >= movement.x - 1.5f) {
                 length = movement.x;

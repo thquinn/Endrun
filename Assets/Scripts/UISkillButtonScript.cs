@@ -38,7 +38,7 @@ public class UISkillButtonScript : MonoBehaviour
     }
 
     void Update() {
-        bool dim = skill.RequiresAction() && skill.unit.actions <= 0;
+        bool dim = !skill.CanActivate();
         canvasGroup.alpha = dim ? .5f : 1;
         Color c = back.color;
         bool highlight = (hovered && !dim) || GameStateManagerScript.instance.gameState.skillDecision?.skill == skill;

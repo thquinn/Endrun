@@ -47,9 +47,10 @@ namespace Assets.Code.Model.Skills.ActiveSkills
                                      withinMax.ToArray());
         }
         public override void Resolve(object choice) {
+            base.Resolve(choice);
             Unit target = choice as Unit;
             unit.Attack(target, GetDamage());
-            base.Resolve(choice);
+            AfterResolve();
         }
     }
 }

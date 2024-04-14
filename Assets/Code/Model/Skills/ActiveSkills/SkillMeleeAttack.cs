@@ -38,9 +38,10 @@ namespace Assets.Code.Model.Skills.ActiveSkills
                                      RangeUtil.GetVisibleEnemiesWithinRadius(unit, RANGE));
         }
         public override void Resolve(object choice) {
+            base.Resolve(choice);
             Unit target = choice as Unit;
             unit.Attack(target, GetDamage());
-            base.Resolve(choice);
+            AfterResolve();
         }
     }
 }
