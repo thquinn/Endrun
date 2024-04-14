@@ -8,14 +8,15 @@ using UnityEngine;
 namespace Assets.Code.Model
 {
     public class GameState {
-        static UnitTemplate TEMPLATE_SUMMONER = new UnitTemplate("Summoner", 8, 6, 0);
-        static UnitTemplate TEMPLATE_SUMMON = new UnitTemplate("Summon", 7, 8, 3, new SkillMeleeAttack(1), new SkillArrow(1));
-        static UnitTemplate TEMPLATE_MELEE_ENEMY = new UnitTemplate("Enemy", 7, 8, 3, new SkillMeleeAttack(1));
+        static UnitTemplate TEMPLATE_SUMMONER = new UnitTemplate("Summoner", "summoner", 8, 6, 0);
+        static UnitTemplate TEMPLATE_SUMMON = new UnitTemplate("Summon", "sniper", 7, 8, 3, new SkillMeleeAttack(1), new SkillArrow(1));
+        static UnitTemplate TEMPLATE_MELEE_ENEMY = new UnitTemplate("Enemy", "sniper", 7, 8, 3, new SkillMeleeAttack(1));
 
         public GameEventManager gameEventManager;
         public Random.State enemyAIState;
         public List<UnitTemplate> summonTemplates;
         public List<Chunk> chunks;
+        public int chunkTicks;
         public List<Unit> units;
         public int maxFocus;
         public Vector2Int mana;
@@ -25,8 +26,11 @@ namespace Assets.Code.Model
             gameEventManager = new GameEventManager();
             enemyAIState = Random.state;
             summonTemplates = new List<UnitTemplate>();
+            summonTemplates.Add(TEMPLATE_SUMMON);
             chunks = new List<Chunk>();
-            chunks.Add(new Chunk(0, Vector3.zero, false, false));
+            chunks.Add(new Chunk(0, false, false));
+            chunks.Add(new Chunk(0, true, true));
+            chunkTicks = Constants.BALANCE_CHUNK_TIMER;
             units = new List<Unit>();
             maxFocus = 10;
             mana = new Vector2Int(10, 10);
@@ -50,9 +54,12 @@ namespace Assets.Code.Model
             units.Add(unit);
             SortUnits();
         }
-        public void RemoveUnit(Unit unit) {
-            units.Remove(unit);
-            SortUnits();
+        public void RemoveDeadUnits() {
+            for (int i = units.Count - 1; i >= 0; i--) {
+                if (units[i].dead) {
+                    units.RemoveAt(i);
+                }
+            }
         }
         public void SortUnits() {
             units.Sort((u1, u2) => u1.ticksUntilTurn - u2.ticksUntilTurn);
@@ -63,6 +70,15 @@ namespace Assets.Code.Model
             foreach (Unit unit in units) {
                 unit.ticksUntilTurn -= tickDecrement;
             }
+            chunkTicks -= tickDecrement;
+            if (chunkTicks <= 0) {
+                ChunkSwap();
+            }
+        }
+        void ChunkSwap() {
+            chunks.RemoveAt(0);
+            chunks.Add(new Chunk(0, true, true));
+            chunkTicks = Constants.BALANCE_CHUNK_TIMER;
         }
 
         public int GetTotalAllyFocus() {

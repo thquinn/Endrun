@@ -88,9 +88,12 @@ namespace Assets.Code.Model
                 amount = amount,
             });
             if (hp.x == 0) {
-                dead = true;
-                gameState.RemoveUnit(this);
+                Die();
+                gameState.RemoveDeadUnits();
             }
+        }
+        public void Die() {
+            dead = true;
         }
         public void EndTurn() {
             movement.x = movement.y;

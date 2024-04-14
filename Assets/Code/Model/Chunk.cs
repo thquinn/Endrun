@@ -10,13 +10,12 @@ namespace Assets.Code.Model
     public class Chunk {
         public int index;
         public Vector3 position;
-        public bool flipX, flipY;
+        public bool flipX, flipZ;
 
-        public Chunk(int index, Vector3 position, bool flipX, bool flipY) {
-            this.position = position;
+        public Chunk(int index, bool flipX, bool flipZ) {
             this.index = index;
             this.flipX = flipX;
-            this.flipY = flipY;
+            this.flipZ = flipZ;
         }
     }
 }

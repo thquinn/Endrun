@@ -9,10 +9,10 @@ using UnityEngine.UI;
 
 public class UISkillButtonScript : MonoBehaviour
 {
-    public SpriteAtlas atlasSkillIcons;
+    public SpriteAtlas atlasSkillIcons, atlasUnitIcons;
 
     public CanvasGroup canvasGroup;
-    public Image back, icon;
+    public Image back, icon, summonIcon;
     public TextMeshProUGUI tmpHotkey;
 
     Skill skill;
@@ -25,6 +25,16 @@ public class UISkillButtonScript : MonoBehaviour
         this.hotkey = hotkey;
         icon.sprite = atlasSkillIcons.GetSprite(skill.GetIconID());
         tmpHotkey.text = Util.KeyCodeToString(hotkey);
+        // Summon.
+        FakeSkillSummon summonSkill = skill as FakeSkillSummon;
+        if (summonSkill != null) {
+            icon.transform.localScale = new Vector3(1.33f, 1.33f, 1);
+            Color c = icon.color;
+            c.a = .5f;
+            icon.color = c;
+            summonIcon.enabled = true;
+            summonIcon.sprite = atlasUnitIcons.GetSprite(summonSkill.template.iconID);
+        }
     }
     void Start() {
         if (skill.type == SkillType.Passive) {

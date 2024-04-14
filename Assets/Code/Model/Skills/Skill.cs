@@ -55,10 +55,12 @@ namespace Assets.Code.Model.Skills
                 return false;
             }
             SkillDecision skillDecision = GetDecision();
-            Debug.Assert(skillDecision == null || skillDecision.choices.Count > 0);
             if (skillDecision == null) {
                 Resolve(null);
             } else {
+                bool hasChoices = skillDecision.choices != null && skillDecision.choices.Count > 0;
+                bool hasPredicate = skillDecision.predicate != null;
+                Debug.Assert(hasChoices || hasPredicate);
                 unit.gameState.skillDecision = skillDecision;
             }
             return true;

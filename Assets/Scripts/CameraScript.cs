@@ -10,15 +10,20 @@ public class CameraScript : MonoBehaviour
     public float minDistance, maxDistance, sensitivity, scrollSensitivity;
     float horizontalAngle = Mathf.PI * 2 / 3;
     float verticalAngle = Mathf.PI / 6;
+    bool firstUpdate;
     bool firstInput;
 
     void Start() {
         chunksLayer = LayerMask.NameToLayer("Chunks");
-        chunksCenter = GetChunksCenter();
     }
 
     void Update() {
-        chunksCenter = Vector3.SmoothDamp(chunksCenter, GetChunksCenter(), ref vCenter, 1);
+        if (!firstUpdate) {
+            chunksCenter = GetChunksCenter();
+            firstUpdate = true;
+        } else {
+            chunksCenter = Vector3.SmoothDamp(chunksCenter, GetChunksCenter(), ref vCenter, .33f);
+        }
 
         // Input.
         distance *= Mathf.Pow(scrollSensitivity, Input.mouseScrollDelta.y);
@@ -40,7 +45,7 @@ public class CameraScript : MonoBehaviour
         float x = Mathf.Cos(horizontalAngle) * xzDistance;
         float y = Mathf.Sin(verticalAngle) * distance;
         float z = Mathf.Sin(horizontalAngle) * xzDistance;
-        transform.localPosition = new Vector3(x, y, z);
+        transform.localPosition = chunksCenter + new Vector3(x, y, z);
         transform.LookAt(chunksCenter);
     }
 
@@ -49,8 +54,12 @@ public class CameraScript : MonoBehaviour
         foreach (GameObject go in gameObject.scene.GetRootGameObjects()) {
             if (go.layer == chunksLayer) {
                 Bounds chunkBounds = go.GetComponent<Collider>().bounds;
-                bounds.Encapsulate(chunkBounds.min);
-                bounds.Encapsulate(chunkBounds.max);
+                if (bounds.size.x == 0) {
+                    bounds = chunkBounds;
+                } else {
+                    bounds.Encapsulate(chunkBounds.min);
+                    bounds.Encapsulate(chunkBounds.max);
+                }
             }
         }
         return bounds.center;

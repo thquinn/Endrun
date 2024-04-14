@@ -3,6 +3,7 @@ using Assets.Code.Model.Skills;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 public class UIScript : MonoBehaviour
@@ -13,14 +14,16 @@ public class UIScript : MonoBehaviour
     public GameObject prefabUILeftUnit, prefabSkillButton, prefabUIUnitTurn;
 
     public GameStateManagerScript gameStateManagerScript;
-    public RectTransform rtLeftUnits, rtSkillBar, rtTurnOrderList;
+    public RectTransform rtLeftUnits, rtSkillBar, rtTurnOrderList, rtChunkTimer;
     public CanvasGroup canvasGroupSkillBar;
+    public TextMeshProUGUI tmpChunkTimerTicks, tmpChunkTimerLabel;
 
     Dictionary<Unit, UILeftUnitScript> leftUnitScripts;
     Dictionary<Unit, UIUnitTurnScript> unitTurnScripts;
 
     Unit lastSkillUnit;
     GameState lastTurnGameState;
+    float vChunkTimer;
 
     void Start() {
         leftUnitScripts = new Dictionary<Unit, UILeftUnitScript>();
@@ -31,6 +34,7 @@ public class UIScript : MonoBehaviour
         SyncLeftUnits();
         SyncSkillBar();
         SyncTurnOrder();
+        SyncChunkTimer();
     }
 
     void SyncLeftUnits() {
@@ -57,9 +61,15 @@ public class UIScript : MonoBehaviour
                 Destroy(child.gameObject);
             }
             if (activeUnit != null) {
-                List<Skill> skills = new List<Skill>(activeUnit.skills);
-                skills.Insert(0, new FakeSkillUndo(activeUnit));
-                skills.Insert(1, new FakeSkillEndTurn(activeUnit));
+                List<Skill> skills = new List<Skill>();
+                skills.Add(new FakeSkillUndo(activeUnit));
+                skills.Add(new FakeSkillEndTurn(activeUnit));
+                if (activeUnit.isSummoner) {
+                    foreach (UnitTemplate template in activeUnit.gameState.summonTemplates) {
+                        skills.Add(new FakeSkillSummon(activeUnit, template));
+                    }
+                }
+                skills.AddRange(activeUnit.skills);
                 for (int i = 0; i < skills.Count; i++) {
                     Instantiate(prefabSkillButton, rtSkillBar).GetComponent<UISkillButtonScript>().Init(skills[i], SKILL_HOTKEYS[i]);
                 }
@@ -92,5 +102,14 @@ public class UIScript : MonoBehaviour
             Destroy(unitTurnScripts[unit].gameObject);
             unitTurnScripts.Remove(unit);
         }
+    }
+
+    void SyncChunkTimer() {
+        int ticks = gameStateManagerScript.gameState.chunkTicks;
+        tmpChunkTimerTicks.text = ticks.ToString();
+        tmpChunkTimerLabel.text = ticks == 1 ? "tick\nremaining" : "ticks\nremaining";
+        float targetX = gameStateManagerScript.gameState.units.Count * -UIUnitTurnScript.SPACING + 20;
+        float x = Mathf.SmoothDamp(rtChunkTimer.anchoredPosition.x, targetX, ref vChunkTimer, .2f);
+        rtChunkTimer.anchoredPosition = new Vector2(x, 0);
     }
 }

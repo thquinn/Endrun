@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class UIUnitTurnScript : MonoBehaviour
 {
+    public static float SPACING = 62;
     static float FADE_TIME = .5f;
     static Vector2 GRAVITY = new Vector2(0, -5f);
 
@@ -34,7 +35,7 @@ public class UIUnitTurnScript : MonoBehaviour
         if (!skipAnim) {
             canvasGroup.alpha = 0;
             if (IsLast()) {
-                anchoredPosition.x -= 72;
+                anchoredPosition.x -= SPACING;
             }
             else {
                 anchoredPosition.y -= 100;
@@ -70,7 +71,7 @@ public class UIUnitTurnScript : MonoBehaviour
 
     float GetX() {
         int index = gameStateManager.gameState.units.IndexOf(unit);
-        return index * -62;
+        return index * -SPACING;
     }
     bool IsLast() {
         return gameStateManager.gameState.units[gameStateManager.gameState.units.Count - 1] == unit;
