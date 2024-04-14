@@ -41,9 +41,6 @@ public class MoveUIScript : MonoBehaviour
         Dictionary<Vector2Int, Vector3> coorsPathable = new Dictionary<Vector2Int, Vector3>();
         Queue<Vector2Int> queue = new Queue<Vector2Int>();
         coorsSeen.Add(Vector2Int.zero);
-        if (agent == null) {
-            Debug.Log("!!!");
-        }
         coorsPathable.Add(Vector2Int.zero, agent.transform.position);
         queue.Enqueue(Vector2Int.zero);
         NavMeshPath path = new NavMeshPath();
@@ -140,7 +137,7 @@ public class MoveUIScript : MonoBehaviour
         bool click = !disableMouseOneFrame && Input.GetMouseButtonDown(0);
         disableMouseOneFrame = false;
         Unit unitToShow = GameStateManagerScript.instance.GetActiveUnit();
-        if (unitToShow != null && (GameStateManagerScript.instance.animationManager.AnyUnitMoving() || unitToShow.movement.x <= 0)) {
+        if (unitToShow != null && (!unitToShow.playerControlled || GameStateManagerScript.instance.animationManager.IsAnythingAnimating() || unitToShow.movement.x <= 0)) {
             unitToShow = null;
         }
         if (GameStateManagerScript.instance.gameState.skillDecision != null) {

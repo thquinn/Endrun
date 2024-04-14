@@ -20,6 +20,7 @@ public class UIScript : MonoBehaviour
     Dictionary<Unit, UIUnitTurnScript> unitTurnScripts;
 
     Unit lastSkillUnit;
+    GameState lastTurnGameState;
 
     void Start() {
         leftUnitScripts = new Dictionary<Unit, UILeftUnitScript>();
@@ -73,11 +74,16 @@ public class UIScript : MonoBehaviour
     }
 
     void SyncTurnOrder() {
+        bool undid = false;
+        if (GameStateManagerScript.instance.gameState != lastTurnGameState) {
+            undid = true;
+            lastTurnGameState = GameStateManagerScript.instance.gameState;
+        }
         List<Unit> units = gameStateManagerScript.gameState.units;
         foreach (Unit unit in units) {
             if (!unitTurnScripts.ContainsKey(unit)) {
                 UIUnitTurnScript uiUnitTurnScript = Instantiate(prefabUIUnitTurn, rtTurnOrderList).GetComponent<UIUnitTurnScript>();
-                uiUnitTurnScript.Init(unit);
+                uiUnitTurnScript.Init(unit, undid);
                 unitTurnScripts[unit] = uiUnitTurnScript;
             }
         }

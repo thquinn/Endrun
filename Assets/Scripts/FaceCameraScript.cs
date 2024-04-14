@@ -12,6 +12,7 @@ public class FaceCameraScript : MonoBehaviour
     void Start()
     {
         cam = Camera.main;
+        Update();
     }
 
     // Update is called once per frame

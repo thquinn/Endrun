@@ -14,11 +14,12 @@ public class UnitScript : MonoBehaviour
 
     public Transform enemyHPSlider;
     public GameObject turnIndicator, turnActionFull, turnActionEmpty;
-    public SpriteRenderer turnMovementRenderer;
+    public SpriteRenderer turnMovementRenderer, turnSpinnerRenderer;
 
     public Unit unit;
     GameStateManagerScript gameStateManager;
     List<SpriteRenderer> enemyHPPipOutlines, enemyHPPipFills;
+    float vTurnSpinnerAlpha;
 
     public void Init(Unit unit) {
         this.unit = unit;
@@ -33,11 +34,15 @@ public class UnitScript : MonoBehaviour
     }
     void Start() {
         navMeshAgent.Warp(transform.localPosition);
+        Color c = turnSpinnerRenderer.color;
+        c.a = 0;
+        turnSpinnerRenderer.color = c;
     }
 
     void Update() {
         transform.localPosition = unit.position;
-        bool showTurnIndicator = unit.playerControlled && gameStateManager.GetActiveUnit() == unit;
+        bool isActive = gameStateManager.GetActiveUnit() == unit;
+        bool showTurnIndicator = isActive && unit.playerControlled;
         turnIndicator.SetActive(showTurnIndicator);
         if (showTurnIndicator) {
             MoveAnimation moveAnimation = gameStateManager.animationManager.GetCurrentOfType<MoveAnimation>();
@@ -46,6 +51,12 @@ public class UnitScript : MonoBehaviour
             turnActionFull.SetActive(unit.actions > 0);
             turnActionEmpty.SetActive(unit.actions <= 0);
         }
+        // Enemy stuff.
+        bool showSpinner = isActive && !unit.playerControlled && !gameStateManager.animationManager.IsAnythingAnimating();
+        Color c = turnSpinnerRenderer.color;
+        c.a = Mathf.SmoothDamp(c.a, showSpinner ? 1 : 0, ref vTurnSpinnerAlpha, .1f);
+        turnSpinnerRenderer.color = c;
+        turnSpinnerRenderer.transform.Rotate(0, 0, Time.deltaTime * -200);
         SyncEnemyHP();
     }
 

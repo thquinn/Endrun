@@ -17,23 +17,30 @@ public class UIUnitTurnScript : MonoBehaviour
     RectTransform rt;
     Vector2 v;
     int lastTicksUntilTurn;
-    bool fadingOut;
+    bool skipAnim, fadingOut;
 
-    public void Init(Unit unit) {
+    public void Init(Unit unit, bool skipAnim) {
         this.unit = unit;
+        this.skipAnim = skipAnim;
         gameStateManager = GameStateManagerScript.instance;
         rt = transform as RectTransform;
+        UpdateInfo();
     }
     void Start() {
         fadingOut = false;
         v = Vector2.zero;
-        canvasGroup.alpha = 0;
         float x = GetX();
-        if (IsLast()) {
-            rt.anchoredPosition = new Vector2(x - 72, 0);
-        } else {
-            rt.anchoredPosition = new Vector2(x, -100);
+        Vector2 anchoredPosition = new Vector2(x, 0);
+        if (!skipAnim) {
+            canvasGroup.alpha = 0;
+            if (IsLast()) {
+                anchoredPosition.x -= 72;
+            }
+            else {
+                anchoredPosition.y -= 100;
+            }
         }
+        rt.anchoredPosition = anchoredPosition;
         lastTicksUntilTurn = unit.ticksUntilTurn;
     }
 
@@ -53,14 +60,17 @@ public class UIUnitTurnScript : MonoBehaviour
             return;
         }
         canvasGroup.alpha += Time.deltaTime / FADE_TIME;
-        tmpTicksLeft.text = unit.ticksUntilTurn == 0 ? "" : $"-{unit.ticksUntilTurn}";
         Vector2 targetedPosition = new Vector2(GetX(), 0);
         rt.anchoredPosition = Vector2.SmoothDamp(rt.anchoredPosition, targetedPosition, ref v, .25f);
+        UpdateInfo();
+    }
+    void UpdateInfo() {
+        tmpTicksLeft.text = unit.ticksUntilTurn == 0 ? "" : $"-{unit.ticksUntilTurn}";
     }
 
     float GetX() {
         int index = gameStateManager.gameState.units.IndexOf(unit);
-        return index * -72;
+        return index * -62;
     }
     bool IsLast() {
         return gameStateManager.gameState.units[gameStateManager.gameState.units.Count - 1] == unit;

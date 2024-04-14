@@ -18,6 +18,7 @@ namespace Assets.Code.Model
         public bool playerControlled;
         public Vector3 position;
         public int ticksUntilTurn;
+        public bool dead;
         // From template:
         public List<Skill> skills;
         public string name;
@@ -47,9 +48,7 @@ namespace Assets.Code.Model
         }
 
         public void StartTurn() {
-            if (!playerControlled) {
-                EndTurn();
-            }
+            
         }
 
         public float XZDistanceTo(Unit other) {
@@ -88,16 +87,16 @@ namespace Assets.Code.Model
                 unitTarget = this,
                 amount = amount,
             });
+            if (hp.x == 0) {
+                dead = true;
+                gameState.RemoveUnit(this);
+            }
         }
         public void EndTurn() {
             movement.x = movement.y;
             actions = 1;
             SetTicks(10);
-            gameState.units.Sort((u1, u2) => u1.ticksUntilTurn - u2.ticksUntilTurn);
-            int tickDecrement = gameState.units[0].ticksUntilTurn;
-            foreach (Unit unit in gameState.units) {
-                unit.ticksUntilTurn -= tickDecrement;
-            }
+            gameState.EndTurn();
             gameState.gameEventManager.Trigger(new GameEvent() {
                 type = GameEventType.TurnStart,
             });

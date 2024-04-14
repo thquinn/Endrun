@@ -38,8 +38,13 @@ namespace Assets.Code.Model.Skills
             return null;
         }
         public virtual bool CanActivate() {
-            Debug.Assert(type == SkillType.Active);
+            if (type != SkillType.Active) {
+                return false;
+            }
             if (RequiresAction() && unit.actions <= 0) {
+                return false;
+            }
+            if (cooldown > 0) {
                 return false;
             }
             return true;
@@ -47,9 +52,6 @@ namespace Assets.Code.Model.Skills
         public virtual bool Activate() {
             Debug.Assert(type == SkillType.Active);
             if (!CanActivate()) {
-                return false;
-            }
-            if (cooldown > 0) {
                 return false;
             }
             SkillDecision skillDecision = GetDecision();

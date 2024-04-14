@@ -28,7 +28,9 @@ namespace Assets.Code.Model.Skills
         }
 
         public override void Resolve(object choice) {
+            base.Resolve(choice);
             GameStateManagerScript.instance.GetActiveUnit().EndTurn();
+            AfterResolve();
         }
     }
 }
