@@ -139,6 +139,9 @@ public class MoveUIScript : MonoBehaviour
         if (unitToShow != null && (GameStateManagerScript.instance.animationManager.AnyUnitMoving() || unitToShow.movement.x <= 0)) {
             unitToShow = null;
         }
+        if (GameStateManagerScript.instance.gameState.skillDecision != null) {
+            unitToShow = null;
+        }
         if (unitToShow != unit) {
             unit = unitToShow;
             if (unit != null) {

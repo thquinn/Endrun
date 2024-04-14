@@ -32,6 +32,9 @@ namespace Assets.Code.Animation
             animations.Add(animation);
         }
 
+        public bool IsAnythingAnimating() {
+            return animations.Count > 0;
+        }
         public bool IsUnitAnimating(Unit unit) {
             return animations.Count > 0 && animations[0].IsUnitAnimating(unit);
         }

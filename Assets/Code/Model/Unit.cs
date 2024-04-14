@@ -1,6 +1,6 @@
 ﻿using Assets.Code.Animation;
 using Assets.Code.Model.GameEvents;
-using Assets.Code.Model.Traits;
+using Assets.Code.Model.Skills;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,13 +12,13 @@ using UnityEngine.AI;
 namespace Assets.Code.Model
 {
     public class Unit {
-        GameState gameState;
+        public GameState gameState;
         public bool isSummoner;
         public bool playerControlled;
         public Vector3 position;
         public int ticksUntilTurn;
         // From template:
-        public List<Trait> traits;
+        public List<Skill> skills;
         public string name;
         public int focusCost;
         public Vector2Int hp;
@@ -30,10 +30,20 @@ namespace Assets.Code.Model
             playerControlled = type != UnitControlType.Enemy;
             this.position = position;
             // Copy template.
-            traits = new List<Trait>(template.traits);
+            skills = new List<Skill>();
+            foreach (Skill skill in template.skills) {
+                Skill copy = skill.Clone();
+                copy.AttachTo(this);
+                skills.Add(copy);
+            }
             name = template.name;
+            focusCost = template.focusCost;
             hp = template.hp;
             movement = template.movement;
+        }
+
+        public float DistanceTo(Unit other) {
+            return (other.position - position).magnitude;
         }
 
         public void Move(NavMeshPath path) {
@@ -43,6 +53,9 @@ namespace Assets.Code.Model
             }
             movement.x -= length;
             GameStateManagerScript.instance.EnqueueAnimation(new MoveAnimation(this, path, length));
+        }
+        public void Attack(Unit target, int amount) {
+            target.hp.x -= amount;
         }
         public void EndTurn() {
             movement.x = movement.y;

@@ -39,12 +39,12 @@ namespace Assets.Code
         static int layerMaskChunks;
         public static Vector3 GetChunksNormal(Vector3 v) {
             if (layerMaskChunks == 0) {
-                layerMaskChunks = LayerMask.NameToLayer("Chunks");
+                layerMaskChunks = LayerMask.GetMask(new string[] { "Chunks" });
             }
             Vector3 xyz = v + Vector3.up;
             Ray ray = new Ray(xyz, Vector3.down);
             RaycastHit hit;
-            Physics.Raycast(ray, out hit, layerMaskChunks);
+            Physics.Raycast(ray, out hit, Mathf.Infinity, layerMaskChunks);
             return hit.normal;
         }
     }

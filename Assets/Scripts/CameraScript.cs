@@ -31,7 +31,7 @@ public class CameraScript : MonoBehaviour
             } else {
                 horizontalAngle -= mx * sensitivity;
                 verticalAngle -= my * sensitivity;
-                verticalAngle = Mathf.Clamp(verticalAngle, Mathf.PI * .1f, Mathf.PI * .49f);
+                verticalAngle = Mathf.Clamp(verticalAngle, Mathf.PI * .05f, Mathf.PI * .49f);
             }
         }
 

@@ -1,4 +1,5 @@
 using Assets.Code.Model;
+using Assets.Code.Model.Skills;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,13 +7,19 @@ using UnityEngine;
 
 public class UIScript : MonoBehaviour
 {
-    public GameObject prefabUILeftUnit, prefabUIUnitTurn;
+    static KeyCode[] SKILL_HOTKEYS = new KeyCode[] { KeyCode.Z, KeyCode.X, KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4,
+                                                     KeyCode.Alpha5, KeyCode.Alpha6, KeyCode.Alpha7, KeyCode.Alpha8, KeyCode.Alpha9, KeyCode.Alpha0 };
+
+    public GameObject prefabUILeftUnit, prefabSkillButton, prefabUIUnitTurn;
 
     public GameStateManagerScript gameStateManagerScript;
-    public RectTransform rtLeftUnits, rtTurnOrderList;
+    public RectTransform rtLeftUnits, rtSkillBar, rtTurnOrderList;
+    public CanvasGroup canvasGroupSkillBar;
 
     Dictionary<Unit, UILeftUnitScript> leftUnitScripts;
     Dictionary<Unit, UIUnitTurnScript> unitTurnScripts;
+
+    Unit lastSkillUnit;
 
     void Start() {
         leftUnitScripts = new Dictionary<Unit, UILeftUnitScript>();
@@ -21,8 +28,10 @@ public class UIScript : MonoBehaviour
 
     void Update() {
         SyncLeftUnits();
+        SyncSkillBar();
         SyncTurnOrder();
     }
+
     void SyncLeftUnits() {
         List<Unit> units = gameStateManagerScript.gameState.units;
         foreach (Unit unit in units) {
@@ -38,6 +47,28 @@ public class UIScript : MonoBehaviour
             leftUnitScripts.Remove(unit);
         }
     }
+
+    void SyncSkillBar() {
+        Unit activeUnit = gameStateManagerScript.GetActiveUnit();
+        if (!activeUnit.playerControlled) activeUnit = null;
+        if (lastSkillUnit != activeUnit) {
+            foreach (Transform child in rtSkillBar) {
+                Destroy(child.gameObject);
+            }
+            if (activeUnit != null) {
+                for (int i = 0; i < activeUnit.skills.Count; i++) {
+                    Instantiate(prefabSkillButton, rtSkillBar).GetComponent<UISkillButtonScript>().Init(activeUnit.skills[i], SKILL_HOTKEYS[i]);
+                }
+            }
+            lastSkillUnit = activeUnit;
+        }
+        float alpha = 0;
+        if (activeUnit != null) {
+            alpha = gameStateManagerScript.animationManager.IsAnythingAnimating() ? .5f : 1;
+        }
+        canvasGroupSkillBar.alpha = alpha;
+    }
+
     void SyncTurnOrder() {
         List<Unit> units = gameStateManagerScript.gameState.units;
         foreach (Unit unit in units) {

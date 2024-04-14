@@ -15,6 +15,6 @@ public class FaceCameraScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.rotation = Quaternion.LookRotation(cam.transform.position, Vector3.up);
+        transform.LookAt(cam.transform, cam.transform.up);
     }
 }

@@ -1,12 +1,12 @@
-﻿using Assets.Code.Model.Traits;
+﻿using Assets.Code.Model.Skills;
 
 namespace Assets.Code.Model.GameEvents {
     public class ActionDetail {
         public ActionType type;
-        public Trait trait;
+        public Skill skill;
     }
 
     public enum ActionType {
-        None, ActivateTrait
+        None, ActivateSkill
     }
 }

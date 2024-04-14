@@ -1,4 +1,4 @@
-﻿using Assets.Code.Model.Traits;
+﻿using Assets.Code.Model.Skills;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,14 +14,14 @@ namespace Assets.Code.Model
         public Vector2Int hp;
         public Vector2 movement;
         public int focusCost;
-        public List<Trait> traits;
+        public List<Skill> skills;
 
-        public UnitTemplate(string name, int hp, float movement, int cost, params Trait[] traits) {
+        public UnitTemplate(string name, int hp, float movement, int focusCost, params Skill[] skills) {
             this.name = name;
             this.hp = new Vector2Int(hp, hp);
             this.movement = new Vector2(movement, movement);
-            this.focusCost = cost;
-            this.traits = new List<Trait>(traits);
+            this.focusCost = focusCost;
+            this.skills = new List<Skill>(skills);
         }
     }
 }

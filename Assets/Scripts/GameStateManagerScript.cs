@@ -1,3 +1,4 @@
+using Assets.Code;
 using Assets.Code.Animation;
 using Assets.Code.Model;
 using Assets.Code.Model.GameEvents;
@@ -13,15 +14,19 @@ public class GameStateManagerScript : MonoBehaviour
     public static GameStateManagerScript instance;
 
     public GameObject prefabUnit;
+    public LayerMask layerMaskUnits;
 
     public GameState gameState;
     public Dictionary<Unit, UnitScript> unitScripts;
+    public Dictionary<Collider, Unit> unitColliders;
     public AnimationManager animationManager;
+    public Unit hoveredUnit;
 
     void Start() {
         instance = this;
         gameState = new GameState();
         unitScripts = new Dictionary<Unit, UnitScript>();
+        unitColliders = new Dictionary<Collider, Unit>();
         SyncUnits();
         animationManager = new AnimationManager();
         Listen(
@@ -36,6 +41,7 @@ public class GameStateManagerScript : MonoBehaviour
 
     void Update() {
         SyncUnits();
+        SkillDecision();
         animationManager.Update();
     }
     void SyncUnits() {
@@ -44,12 +50,20 @@ public class GameStateManagerScript : MonoBehaviour
                 UnitScript unitScript = Instantiate(prefabUnit).GetComponent<UnitScript>();
                 unitScript.Init(unit);
                 unitScripts[unit] = unitScript;
+                unitColliders[unitScript.GetComponent<Collider>()] = unit;
             }
         }
         var nulls = unitScripts.Keys.Where(u => !gameState.units.Contains(u));
         foreach (Unit unit in nulls) {
             Destroy(unitScripts[unit].gameObject);
             unitScripts.Remove(unit);
+        }
+    }
+    void SkillDecision() {
+        Collider hoveredUnitCollider = Util.GetMouseCollider(layerMaskUnits);
+        hoveredUnit = (hoveredUnitCollider != null && unitColliders.ContainsKey(hoveredUnitCollider)) ? unitColliders[hoveredUnitCollider] : null;
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetMouseButtonDown(1)) {
+            gameState.skillDecision = null;
         }
     }
 
