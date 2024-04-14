@@ -7,9 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Force.DeepCloner;
-using UnityEditor.AI;
 
-public class GameStateManagerScript : MonoBehaviour, IGameEventMonoBehaviourHandler
+public class GameStateManagerScript : MonoBehaviour
 {
     public static GameStateManagerScript instance;
 
@@ -31,22 +30,20 @@ public class GameStateManagerScript : MonoBehaviour, IGameEventMonoBehaviourHand
         unitColliders = new Dictionary<Collider, Unit>();
         SyncUnits();
         animationManager = new AnimationManager();
-        RegisterHandlers(gameState.gameEventManager);
+        Listen(
+            GameEventType.TurnStart,
+            null,
+            UpdateNavMesh
+        );
         gameState.gameEventManager.Trigger(new GameEvent() {
             type = GameEventType.TurnStart,
         });
         gameState.units[0].StartTurn();
     }
-    void RegisterHandlers(GameEventManager gameEventManager) {
-        Listen(GameEventType.TurnStart, null, this, gameEventManager);
-    }
-    public void Reregister(GameEventManager gameEventManager) {
-        RegisterHandlers(gameEventManager);
-    }
 
     void Update() {
         if (Input.GetKeyDown(KeyCode.F5)) {
-            SaveState();
+            savedState = gameState.DeepClone();
         }
         else if (Input.GetKeyDown(KeyCode.F8)) {
             LoadState(savedState);
@@ -83,7 +80,7 @@ public class GameStateManagerScript : MonoBehaviour, IGameEventMonoBehaviourHand
         }
     }
 
-    bool UpdateNavMesh() {
+    bool UpdateNavMesh(GameEvent e) {
         Unit activeUnit = GetActiveUnit();
         foreach (UnitScript unitScript in unitScripts.Values) {
             unitScript.ToggleCollider(activeUnit);
@@ -95,29 +92,17 @@ public class GameStateManagerScript : MonoBehaviour, IGameEventMonoBehaviourHand
         return gameState.units[0];
     }
 
-    public void Listen(GameEventType type, Predicate<GameEvent> predicate, IGameEventHandler handler, GameEventManager gameEventManager) {
-        gameEventManager.Listen(type, predicate, handler);
+    public void Listen(GameEventType type, Predicate<GameEvent> predicate, Func<GameEvent, bool> func) {
+        gameState.gameEventManager.Listen(type, predicate, func);
     }
     public void EnqueueAnimation(AnimationBase animation) {
         animationManager.Enqueue(animation);
     }
 
     // Undo support.
-    void SaveState() {
-        savedState = gameState.DeepClone();
-        savedState.gameEventManager.HACK_OverwriteMonoBehaviourHandlers(gameState.gameEventManager);
-    }
     void LoadState(GameState saved) {
-        if (savedState == null) return;
         gameState = saved;
         SyncUnits();
-        UpdateNavMesh();
-        NavMeshBuilder.BuildNavMesh();
-    }
-
-    // Event handling.
-    public bool Handle(GameEvent e) {
-        UpdateNavMesh();
-        return false;
+        UpdateNavMesh(null);
     }
 }

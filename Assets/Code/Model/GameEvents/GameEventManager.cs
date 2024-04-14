@@ -3,26 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using UnityEngine;
 
 namespace Assets.Code.Model.GameEvents {
     public class GameEventManager {
-        protected Dictionary<GameEventType, List<GameEventHandler>> handlers;
+        Dictionary<GameEventType, List<GameEventHandler>> handlers;
 
         public GameEventManager() {
             handlers = new Dictionary<GameEventType, List<GameEventHandler>>();
         }
 
-        public void Listen(GameEventType type, Predicate<GameEvent> predicate, IGameEventHandler handler) {
+        public void Listen(GameEventType type, Predicate<GameEvent> predicate, Func<GameEvent, bool> func) {
             if (!handlers.ContainsKey(type)) {
                 handlers[type] = new();
             }
-            handlers[type].Add(new GameEventHandler(predicate, handler));
+            handlers[type].Add(new GameEventHandler(predicate, func));
         }
         public void Unregister(object o) {
             foreach (var l in handlers.Values) {
                 for (int i = l.Count - 1; i >= 0; i--) {
-                    if (l[i].handler == o) {
+                    if (l[i].func.Target == o) {
                         l.RemoveAt(i);
                     }
                 }
@@ -35,26 +34,11 @@ namespace Assets.Code.Model.GameEvents {
                     GameEventHandler handler = eHandlers[i];
                     if (handler.predicate == null || handler.predicate.Invoke(e)) {
                         eHandlers.RemoveAt(i--);
-                        if (handler.handler.Handle(e)) {
+                        if (handler.func.Invoke(e)) {
                             i = 0;
                         }
                     }
                 }
-            }
-        }
-
-        public void HACK_OverwriteMonoBehaviourHandlers(GameEventManager other) {
-            HashSet<IGameEventMonoBehaviourHandler> mbhSet = new HashSet<IGameEventMonoBehaviourHandler>();
-            foreach (var l in handlers.Values) {
-                for (int i = l.Count - 1; i >= 0; i--) {
-                    if (l[i].handler is IGameEventMonoBehaviourHandler) {
-                        mbhSet.Add(l[i].handler as IGameEventMonoBehaviourHandler);
-                        l.RemoveAt(i);
-                    }
-                }
-            }
-            foreach (IGameEventMonoBehaviourHandler mbh in mbhSet) {
-                mbh.Reregister(this);
             }
         }
     }
@@ -80,11 +64,11 @@ namespace Assets.Code.Model.GameEvents {
         // Example: "1% chance to die each turn"
         //      Because the 1% chance is independent of event fields, that roll can be done by the predicate.
         public Predicate<GameEvent> predicate;
-        public IGameEventHandler handler; // .Handle() returns true if the event was modified
+        public Func<GameEvent, bool> func; // returns true if the event was modified
 
-        public GameEventHandler(Predicate<GameEvent> predicate, IGameEventHandler handler) {
+        public GameEventHandler(Predicate<GameEvent> predicate, Func<GameEvent, bool> func) {
             this.predicate = predicate;
-            this.handler = handler;
+            this.func = func;
         }
     }
 
