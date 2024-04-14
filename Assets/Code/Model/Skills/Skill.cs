@@ -30,6 +30,7 @@ namespace Assets.Code.Model.Skills
 
         public abstract string GetDescription();
         public abstract string GetIconID();
+        public virtual bool RequiresAction() { return type == SkillType.Active; }
         public virtual int GetActivationCooldown() { return 0; }
         public virtual SkillDecision GetDecision() {
             Debug.Assert(type == SkillType.Active);
@@ -37,18 +38,25 @@ namespace Assets.Code.Model.Skills
         }
         public virtual bool Activate() {
             Debug.Assert(type == SkillType.Active);
+            if (RequiresAction() && unit.actions <= 0) {
+                return false;
+            }
             if (cooldown > 0) {
                 return false;
             }
             SkillDecision skillDecision = GetDecision();
             Debug.Assert(skillDecision == null || skillDecision.choices.Count > 0);
-            unit.gameState.skillDecision = skillDecision;
             if (skillDecision == null) {
                 Resolve(null);
+            } else {
+                unit.gameState.skillDecision = skillDecision;
             }
             return true;
         }
         public virtual void Resolve(object choice) {
+            if (RequiresAction()) {
+                unit.actions--;
+            }
             cooldown = GetActivationCooldown();
             unit.gameState.skillDecision = null;
         }

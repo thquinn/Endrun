@@ -85,6 +85,6 @@ namespace Assets.Code.Model.GameEvents {
         }
     }
     public enum GameEventType {
-        None, TurnStart
+        None, Damage, TurnStart
     }
 }

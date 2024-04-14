@@ -13,6 +13,8 @@ public class MoveUIScript : MonoBehaviour
     static Vector2Int[] NEIGHBOR_DIRECTIONS = new Vector2Int[] { new Vector2Int(-1, -1), new Vector2Int(0, -1), new Vector2Int(1, -1), new Vector2Int(-1, 0), new Vector2Int(1, 0), new Vector2Int(1, -1), new Vector2Int(1, 0), new Vector2Int(1, 1) };
     static float GRID_SIZE = .33f;
 
+    public static bool disableMouseOneFrame;
+
     public MeshFilter meshFilter;
     public LineRenderer lineRenderer;
     public GameObject pathFinish, pathCircle;
@@ -132,6 +134,8 @@ public class MoveUIScript : MonoBehaviour
     }
 
     void Update() {
+        bool click = !disableMouseOneFrame && Input.GetMouseButtonDown(0);
+        disableMouseOneFrame = false;
         if (rebuildMesh && unit != null) {
             BuildPreviewMesh();
         }
@@ -183,7 +187,7 @@ public class MoveUIScript : MonoBehaviour
                 pathCircle.transform.localScale = new Vector3(agent.radius * 2, agent.radius * 2, 1);
             }
         }
-        if (path != null && Input.GetMouseButtonDown(0) && pathLength <= unit.movement.x) {
+        if (path != null && click && pathLength <= unit.movement.x) {
             unit.Move(path);
         }
     }

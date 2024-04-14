@@ -56,8 +56,10 @@ public class UIScript : MonoBehaviour
                 Destroy(child.gameObject);
             }
             if (activeUnit != null) {
-                for (int i = 0; i < activeUnit.skills.Count; i++) {
-                    Instantiate(prefabSkillButton, rtSkillBar).GetComponent<UISkillButtonScript>().Init(activeUnit.skills[i], SKILL_HOTKEYS[i]);
+                List<Skill> skills = new List<Skill>(activeUnit.skills);
+                skills.Insert(0, new FakeSkillEndTurn());
+                for (int i = 0; i < skills.Count; i++) {
+                    Instantiate(prefabSkillButton, rtSkillBar).GetComponent<UISkillButtonScript>().Init(skills[i], SKILL_HOTKEYS[i]);
                 }
             }
             lastSkillUnit = activeUnit;

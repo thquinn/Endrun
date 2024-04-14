@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class FaceCameraScript : MonoBehaviour
 {
+    public bool flip;
+
     Camera cam;
 
     // Start is called before the first frame update
@@ -15,6 +17,10 @@ public class FaceCameraScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.LookAt(cam.transform, cam.transform.up);
+        if (flip) {
+            transform.rotation = Quaternion.LookRotation(transform.position - cam.transform.position, cam.transform.up);
+        } else {
+            transform.LookAt(cam.transform, cam.transform.up);
+        }
     }
 }

@@ -13,7 +13,7 @@ public class UnitScript : MonoBehaviour
     public NavMeshObstacle navMeshObstacle;
 
     public Transform enemyHPSlider;
-    public GameObject turnIndicator;
+    public GameObject turnIndicator, turnActionFull, turnActionEmpty;
     public SpriteRenderer turnMovementRenderer;
 
     public Unit unit;
@@ -43,6 +43,8 @@ public class UnitScript : MonoBehaviour
             MoveAnimation moveAnimation = gameStateManager.animationManager.GetCurrentOfType<MoveAnimation>();
             float movementX = moveAnimation?.IsUnitAnimating(unit) == true ? moveAnimation.GetAnimatedMovementRemaining() : unit.movement.x;
             turnMovementRenderer.material.SetFloat("_Revealed", movementX / unit.movement.y);
+            turnActionFull.SetActive(unit.actions > 0);
+            turnActionEmpty.SetActive(unit.actions <= 0);
         }
         SyncEnemyHP();
     }

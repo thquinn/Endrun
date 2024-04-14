@@ -35,14 +35,5 @@ namespace Assets.Code.Animation
         public float GetAnimatedMovementRemaining() {
             return unit.movement.x + pathLength * (1 - time.x / time.y);
         }
-
-        public override void Finish() {
-            if (unit.movement.x <= 0) {
-                unit.EndTurn();
-            }
-        }
-        public override bool EndTurnOnFinish() {
-            return unit.movement.x <= 0;
-        }
     }
 }

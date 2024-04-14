@@ -23,6 +23,7 @@ namespace Assets.Code.Model
         public int focusCost;
         public Vector2Int hp;
         public Vector2 movement;
+        public int actions;
 
         public Unit(GameState gameState, UnitControlType type, Vector3 position, UnitTemplate template) {
             this.gameState = gameState;
@@ -40,10 +41,26 @@ namespace Assets.Code.Model
             focusCost = template.focusCost;
             hp = template.hp;
             movement = template.movement;
+            actions = 1;
         }
 
-        public float DistanceTo(Unit other) {
+        public void StartTurn() {
+            if (!playerControlled) {
+                EndTurn();
+            }
+        }
+
+        public float XZDistanceTo(Unit other) {
+            return Vector2.Distance(new Vector2(position.x, position.z), new Vector2(other.position.x, other.position.z));
+        }
+        public float SphericalDistanceTo(Unit other) {
             return (other.position - position).magnitude;
+        }
+        public bool CanShootWithinConicalDistance(Unit other, float coneRadius) {
+            float heightAdvantage = position.y - other.position.y;
+            float multiplier = Math.Max(0, 1 + heightAdvantage * Constants.COMBAT_CONE_RANGE_MULTIPLIER);
+            float xzDistance = XZDistanceTo(other);
+            return xzDistance < coneRadius * multiplier;
         }
 
         public void Move(NavMeshPath path) {
@@ -55,10 +72,20 @@ namespace Assets.Code.Model
             GameStateManagerScript.instance.EnqueueAnimation(new MoveAnimation(this, path, length));
         }
         public void Attack(Unit target, int amount) {
-            target.hp.x -= amount;
+            target.Damage(amount);
+        }
+        public void Damage(int amount) {
+            amount = Mathf.Min(hp.x, amount);
+            hp.x -= amount;
+            gameState.gameEventManager.Trigger(new GameEvent() {
+                type = GameEventType.Damage,
+                unitTarget = this,
+                amount = amount,
+            });
         }
         public void EndTurn() {
             movement.x = movement.y;
+            actions = 1;
             SetTicks(10);
             gameState.units.Sort((u1, u2) => u1.ticksUntilTurn - u2.ticksUntilTurn);
             int tickDecrement = gameState.units[0].ticksUntilTurn;
@@ -68,6 +95,7 @@ namespace Assets.Code.Model
             gameState.gameEventManager.Trigger(new GameEvent() {
                 type = GameEventType.TurnStart,
             });
+            gameState.units[0].StartTurn();
         }
         void SetTicks(int desiredTicks) {
             // Sets ticksUntilTurn to the desired number, unless another unit already has that exact value.

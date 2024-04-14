@@ -27,6 +27,9 @@ namespace Assets.Code.Model.Skills
             this.baseRadius = baseRadius;
             this.choices = new HashSet<object>(choices);
         }
+        public bool IsAChoice(object o) {
+            return o != null && choices.Contains(o);
+        }
         public void MakeDecision(object choice) {
             Debug.Assert(choices.Contains(choice));
             skill.Resolve(choice);
@@ -34,6 +37,6 @@ namespace Assets.Code.Model.Skills
     }
 
     public enum RangePreviewType {
-        None, Ring, Sphere, Funnel
+        None, Ring, Sphere, Cone
     }
 }

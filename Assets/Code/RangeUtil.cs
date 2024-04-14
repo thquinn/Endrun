@@ -13,7 +13,11 @@ namespace Assets.Code
         static int layerMaskChunks;
 
         public static Unit[] GetVisibleEnemiesWithinRadius(Unit unit, float radius) {
-            return GetEnemies(unit).Where(u => unit.DistanceTo(u) <= radius)
+            return GetEnemies(unit).Where(u => unit.SphericalDistanceTo(u) <= radius)
+                                   .Where(u => !IsTerrainBetweenUnits(unit, u)).ToArray();
+        }
+        public static Unit[] GetVisibleEnemiesWithinCone(Unit unit, float radius) {
+            return GetEnemies(unit).Where(u => unit.CanShootWithinConicalDistance(u, radius))
                                    .Where(u => !IsTerrainBetweenUnits(unit, u)).ToArray();
         }
         public static IEnumerable<Unit> GetEnemies(Unit unit) {

@@ -12,7 +12,7 @@ namespace Assets.Code.Model
 {
     public class GameState {
         static UnitTemplate TEMPLATE_SUMMONER = new UnitTemplate("Summoner", 8, 6, 0);
-        static UnitTemplate TEMPLATE_BASIC = new UnitTemplate("Summon", 7, 8, 3, new SkillMeleeAttack(1));
+        static UnitTemplate TEMPLATE_BASIC = new UnitTemplate("Summon", 7, 8, 3, new SkillMeleeAttack(1), new SkillArrow(1));
 
         public GameEventManager gameEventManager;
         public List<UnitTemplate> summonTemplates;

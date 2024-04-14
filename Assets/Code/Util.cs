@@ -9,6 +9,13 @@ namespace Assets.Code
 {
     public static class Util
     {
+        public static string KeyCodeToString(KeyCode keyCode) {
+            if (keyCode >= KeyCode.Alpha0 && keyCode <= KeyCode.Alpha9) {
+                return ((char)('0' + keyCode - KeyCode.Alpha0)).ToString();
+            }
+            return keyCode.ToString();
+        }
+
         static Camera mainCamera;
         public static Collider GetMouseCollider(LayerMask layerMask) {
             if (mainCamera == null) mainCamera = Camera.main;

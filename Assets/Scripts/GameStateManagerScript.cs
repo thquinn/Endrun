@@ -37,6 +37,7 @@ public class GameStateManagerScript : MonoBehaviour
         gameState.gameEventManager.Trigger(new GameEvent() {
             type = GameEventType.TurnStart,
         });
+        gameState.units[0].StartTurn();
     }
 
     void Update() {
@@ -64,6 +65,11 @@ public class GameStateManagerScript : MonoBehaviour
         hoveredUnit = (hoveredUnitCollider != null && unitColliders.ContainsKey(hoveredUnitCollider)) ? unitColliders[hoveredUnitCollider] : null;
         if (Input.GetKeyDown(KeyCode.Escape) || Input.GetMouseButtonDown(1)) {
             gameState.skillDecision = null;
+            return;
+        }
+        if (Input.GetMouseButtonDown(0) && gameState.skillDecision?.IsAChoice(hoveredUnit) == true) {
+            gameState.skillDecision.MakeDecision(hoveredUnit);
+            MoveUIScript.disableMouseOneFrame = true;
         }
     }
 

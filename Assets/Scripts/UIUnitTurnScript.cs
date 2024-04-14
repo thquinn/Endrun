@@ -7,7 +7,7 @@ using UnityEngine;
 public class UIUnitTurnScript : MonoBehaviour
 {
     static float FADE_TIME = .5f;
-    static Vector2 GRAVITY = new Vector2(0, -.1f);
+    static Vector2 GRAVITY = new Vector2(0, -5f);
 
     public CanvasGroup canvasGroup;
     public TextMeshProUGUI tmpTicksLeft;
@@ -44,8 +44,8 @@ public class UIUnitTurnScript : MonoBehaviour
         }
         lastTicksUntilTurn = unit.ticksUntilTurn;
         if (fadingOut) {
-            v += GRAVITY;
-            rt.anchoredPosition += v;
+            v += GRAVITY * Time.deltaTime;
+            rt.anchoredPosition += v * Time.deltaTime;
             canvasGroup.alpha -= Time.deltaTime / FADE_TIME;
             if (canvasGroup.alpha <= 0) {
                 Start();

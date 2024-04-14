@@ -39,7 +39,7 @@ public class TargetIndicatorScript : MonoBehaviour
     }
 
     void Update() {
-        bool targetable = GameStateManagerScript.instance.gameState.skillDecision?.choices.Contains(unitScript.unit) ?? false;
+        bool targetable = GameStateManagerScript.instance.gameState.skillDecision?.IsAChoice(unitScript.unit) == true;
         bool hovered = targetable && GameStateManagerScript.instance.hoveredUnit == unitScript.unit;
         if (!targetable && arrowRenderers[0].color.a <= 0) return;
 
