@@ -138,6 +138,7 @@ public class MoveUIScript : MonoBehaviour
         disableMouseOneFrame = false;
         if (rebuildMesh && unit != null) {
             BuildPreviewMesh();
+            rebuildMesh = false;
         }
         Unit unitToShow = GameStateManagerScript.instance.GetActiveUnit();
         if (unitToShow != null && (GameStateManagerScript.instance.animationManager.AnyUnitMoving() || unitToShow.movement.x <= 0)) {
