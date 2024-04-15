@@ -57,7 +57,7 @@ public class MoveUIScript : MonoBehaviour
                 NavMesh.SamplePosition(worldSpace, out navMeshHit, 3f, NavMesh.AllAreas);
                 if (!navMeshHit.hit) continue;
                 Vector2 xzDistance = new Vector2(worldSpace.x - navMeshHit.position.x, worldSpace.z - navMeshHit.position.z);
-                if (xzDistance.magnitude > GRID_SIZE * .2f) continue;
+                if (xzDistance.magnitude > GRID_SIZE * .5f) continue;
                 agent.CalculatePath(navMeshHit.position, path);
                 if (path.status != NavMeshPathStatus.PathComplete) continue;
                 if (NavMeshUtil.GetPathLength(path) <= unit.movement.x) {

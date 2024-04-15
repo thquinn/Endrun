@@ -50,6 +50,9 @@ public class GameStateManagerScript : MonoBehaviour
     void Update() {
         // DEBUG DEBUG DEBUG
         if (Input.GetKeyDown(KeyCode.F1)) {
+            gameState.chunkTicks += 100;
+        }
+        if (Input.GetKeyDown(KeyCode.F2)) {
             gameState.chunks.Add(new Chunk(0, UnityEngine.Random.value < .5f, UnityEngine.Random.value < .5f));
         }
         // END DEBUG
