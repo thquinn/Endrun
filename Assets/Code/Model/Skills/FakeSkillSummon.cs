@@ -14,7 +14,7 @@ namespace Assets.Code.Model.Skills
         public UnitTemplate template;
 
         public FakeSkillSummon(Unit unit, UnitTemplate template) : base(-1) {
-            name = "Summon";
+            name = $"Summon {template.name}";
             this.unit = unit;
             this.template = template;
         }
@@ -24,7 +24,7 @@ namespace Assets.Code.Model.Skills
         }
 
         public override string GetDescription() {
-            return string.Format($"Summon an ally.");
+            return string.Format($"Summon an ally. Requires <b>{template.focusCost}</b> mana and focus.");
         }
         public override string GetIconID() {
             return "summon";

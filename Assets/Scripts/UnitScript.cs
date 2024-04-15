@@ -5,14 +5,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class UnitScript : MonoBehaviour
+public class UnitScript : TooltipBehavior
 {
+    public GameObject[] prefabUnitMeshes;
     public GameObject prefabHoveringHPPip;
+    public Material materialAlly, materialEnemy;
 
     public NavMeshAgent navMeshAgent;
     public NavMeshObstacle navMeshObstacle;
 
-    public Transform enemyHPSlider;
+    public Transform meshContainer, enemyHPSlider;
     public GameObject turnIndicator, turnActionFull, turnActionEmpty;
     public SpriteRenderer turnMovementRenderer, turnSpinnerRenderer;
 
@@ -25,6 +27,21 @@ public class UnitScript : MonoBehaviour
         this.unit = unit;
         gameStateManager = GameStateManagerScript.instance;
         transform.localPosition = unit.position;
+        // Mesh.
+        if (meshContainer.childCount > 0) {
+            Destroy(meshContainer.GetChild(0).gameObject);
+        }
+        foreach (GameObject mesh in prefabUnitMeshes) {
+            if (mesh.name == unit.iconID) {
+                Transform meshes = Instantiate(mesh, meshContainer).transform;
+                if (!unit.isSummoner) {
+                    foreach (MeshRenderer meshRenderer in meshes.GetComponentsInChildren<MeshRenderer>()) {
+                        meshRenderer.material = unit.playerControlled ? materialAlly : materialEnemy;
+                    }
+                }
+            }
+        }
+        // HP.
         if (unit.playerControlled) {
             enemyHPSlider.parent.gameObject.SetActive(false);
         } else {
@@ -93,5 +110,9 @@ public class UnitScript : MonoBehaviour
             enemyHPPipOutlines[i].transform.localPosition = new Vector3(xIndex * -.15f, yIndex * .29f, enemyHPPipOutlines[i].transform.localPosition.z);
             enemyHPPipFills[i].enabled = unit.hp.x > i;
         }
+    }
+
+    public override ITooltippableObject GetTooltippableObject() {
+        return unit;
     }
 }

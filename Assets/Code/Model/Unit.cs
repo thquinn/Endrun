@@ -11,9 +11,8 @@ using UnityEngine.AI;
 
 namespace Assets.Code.Model
 {
-    public class Unit {
+    public class Unit : ITooltippableObject {
         public GameState gameState;
-        public int id;
         public bool isSummoner;
         public bool playerControlled;
         public Vector3 position;
@@ -22,6 +21,7 @@ namespace Assets.Code.Model
         // From template:
         public List<Skill> skills;
         public string name;
+        public string iconID;
         public int focusCost;
         public Vector2Int hp;
         public Vector2 movement;
@@ -29,7 +29,6 @@ namespace Assets.Code.Model
 
         public Unit(GameState gameState, UnitControlType type, Vector3 position, UnitTemplate template) {
             this.gameState = gameState;
-            id = ID.Get();
             isSummoner = type == UnitControlType.Summoner;
             playerControlled = type != UnitControlType.Enemy;
             this.position = position;
@@ -41,6 +40,7 @@ namespace Assets.Code.Model
                 skills.Add(copy);
             }
             name = template.name;
+            iconID = template.iconID;
             focusCost = template.focusCost;
             hp = template.hp;
             movement = template.movement;
@@ -94,6 +94,11 @@ namespace Assets.Code.Model
         }
         public void Die() {
             dead = true;
+            gameState.gameEventManager.Unregister(this);
+        }
+        public void Heal(int amount) {
+            amount = Mathf.Min(hp.y - hp.x, amount);
+            hp.x += amount;
         }
         public void EndTurn() {
             movement.x = movement.y;
@@ -112,6 +117,19 @@ namespace Assets.Code.Model
                 desiredTicks++;
             }
             ticksUntilTurn = desiredTicks;
+        }
+
+        public Tooltip GetTooltip() {
+            string allegianceString = isSummoner ? "Summoner" : playerControlled ? "Summon" : "Enemy";
+            string hpString = $"{hp.x}/{hp.y} HP";
+            string movementString = $"{movement.y}m move";
+            List<string> contentStrings = new List<string>() { allegianceString, hpString, movementString };
+            contentStrings.AddRange(skills.Select(s => s.ToString()));
+            string content = string.Join('\n', contentStrings);
+            return new Tooltip() {
+                header = name,
+                content = content,
+            };
         }
     }
 

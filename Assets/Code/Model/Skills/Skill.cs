@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Assets.Code.Model.Skills
 {
-    public abstract class Skill {
+    public abstract class Skill : ITooltippableObject {
         public Unit unit;
         public SkillType type;
         public int level;
@@ -85,6 +85,19 @@ namespace Assets.Code.Model.Skills
                 unit.actions--;
             }
             cooldown = GetActivationCooldown();
+        }
+
+        public virtual Tooltip GetTooltip() {
+            return new Tooltip() {
+                header = GetLeveledName(),
+                content = GetDescription(),
+            };
+        }
+        public override string ToString() {
+            return $"<b>{GetLeveledName()}</b>    {GetDescription()}";
+        }
+        public string GetLeveledName() {
+            return level <= 1 ? name : $"{name} {Util.ToRoman(level)}";
         }
     }
 

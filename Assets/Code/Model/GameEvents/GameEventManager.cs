@@ -98,6 +98,6 @@ namespace Assets.Code.Model.GameEvents {
         }
     }
     public enum GameEventType {
-        None, BeforeMove, BeforeResolveSkill, Damage, TurnStart
+        None, BeforeMove, BeforeResolveSkill, Damage, MovementSegment, TurnStart
     }
 }

@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Assets.Code.Model.Skills.ActiveSkills
 {
     public class SkillArrow : ActiveSkill {
         static int DAMAGE_BASE = 2;
         static int DAMAGE_INCREMENT = 1;
-        static float MIN_RANGE = Constants.COMBAT_MELEE_RADIUS + 1;
+        static float MIN_RANGE = Mathf.CeilToInt(Constants.COMBAT_MELEE_RADIUS);
         static float MAX_RANGE = 6;
         static float MAX_RANGE_INCREMENT = 1;
 

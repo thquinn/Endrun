@@ -40,14 +40,16 @@ public class TargetIndicatorScript : MonoBehaviour
 
     void Update() {
         bool targetable = GameStateManagerScript.instance.gameState.skillDecision?.IsValid(unitScript.unit) == true;
-        bool hovered = targetable && GameStateManagerScript.instance.hoveredUnit == unitScript.unit;
-        if (!targetable && arrowRenderers[0].color.a <= 0) return;
+        bool tooltipped = UITooltipScript.instance.lastHovered == unitScript.unit;
+        bool active = targetable || tooltipped;
+        bool targeting = targetable && GameStateManagerScript.instance.hoveredUnit == unitScript.unit;
+        if (!active && arrowRenderers[0].color.a <= 0) return;
 
-        spin += Time.deltaTime * (hovered ? 1.5f : .66f);
+        spin += Time.deltaTime * (targeting ? 1.5f : .66f);
         Vector3 spinVector = new Vector3(Mathf.Cos(spin), 0, Mathf.Sin(spin));
         transform.rotation = Quaternion.LookRotation(NavMeshUtil.GetChunksNormal(transform.position), spinVector);
 
-        float targetAlpha = targetable ? 1 : 0;
+        float targetAlpha = active ? 1 : 0;
         float alpha = Mathf.SmoothDamp(arrowRenderers[0].color.a, targetAlpha, ref vAlpha, .1f);
         foreach (SpriteRenderer arrowRenderer in arrowRenderers) {
             Color c = arrowRenderer.color;
@@ -56,7 +58,7 @@ public class TargetIndicatorScript : MonoBehaviour
         }
 
         pulse += Time.deltaTime * 5;
-        float targetGlowAlpha = hovered ? Mathf.Cos(pulse) / 2 + .5f : 0;
+        float targetGlowAlpha = targeting ? Mathf.Cos(pulse) / 2 + .5f : 0;
         float glowAlpha = Mathf.SmoothDamp(glowRenderers[0].color.a, targetGlowAlpha, ref vGlowAlpha, .1f);
         foreach (SpriteRenderer glowRenderer in glowRenderers) {
             Color c = glowRenderer.color;
@@ -66,7 +68,7 @@ public class TargetIndicatorScript : MonoBehaviour
 
         sphincter += Time.deltaTime * 4;
         float targetY = -.5f;
-        if (hovered) {
+        if (targeting) {
             targetY += Mathf.Sin(sphincter) * .1f;
         }
         float y = Mathf.SmoothDamp(transform.GetChild(0).GetChild(0).localPosition.y, targetY, ref vSphincter, .2f);

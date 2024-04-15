@@ -154,7 +154,7 @@ public class GameStateManagerScript : MonoBehaviour
     }
 
     public Unit GetActiveUnit() {
-        return gameState.units.Count == 0 ? null : gameState.units[0];
+        return gameState.GetActiveUnit();
     }
 
     public void Listen(GameEventType type, Predicate<GameEvent> predicate, Func<GameEvent, bool> func) {

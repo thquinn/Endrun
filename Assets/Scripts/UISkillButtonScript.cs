@@ -1,4 +1,5 @@
 using Assets.Code;
+using Assets.Code.Model;
 using Assets.Code.Model.Skills;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.UI;
 
-public class UISkillButtonScript : MonoBehaviour
+public class UISkillButtonScript : TooltipBehavior
 {
     public SpriteAtlas atlasSkillIcons, atlasUnitIcons;
 
@@ -30,7 +31,7 @@ public class UISkillButtonScript : MonoBehaviour
         if (summonSkill != null) {
             icon.transform.localScale = new Vector3(1.33f, 1.33f, 1);
             Color c = icon.color;
-            c.a = .5f;
+            c.a = .25f;
             icon.color = c;
             summonIcon.enabled = true;
             summonIcon.sprite = atlasUnitIcons.GetSprite(summonSkill.template.iconID);
@@ -73,5 +74,9 @@ public class UISkillButtonScript : MonoBehaviour
     }
     public void OnPointerExit() {
         hovered = false;
+    }
+
+    public override ITooltippableObject GetTooltippableObject() {
+        return skill;
     }
 }

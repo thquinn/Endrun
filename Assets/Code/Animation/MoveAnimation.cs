@@ -1,9 +1,11 @@
 ﻿using Assets.Code.Model;
+using Assets.Code.Model.GameEvents;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.AI;
 
 namespace Assets.Code.Animation
@@ -26,7 +28,16 @@ namespace Assets.Code.Animation
 
         public override void Update() {
             base.Update();
-            unit.position = NavMeshUtil.GetPointAlongPath(navMeshPath, time.x / time.y);
+            Vector3 a = unit.position;
+            Vector3 b = NavMeshUtil.GetPointAlongPath(navMeshPath, time.x / time.y);
+            unit.position = b;
+            unit.gameState.gameEventManager.Trigger(new GameEvent() {
+                type = GameEventType.MovementSegment,
+                unitSource = unit,
+                actionDetail = new ActionDetail() {
+                    positions = new Vector3[] { a, b },
+                },
+            });
         }
 
         public override bool IsUnitAnimating(Unit unit) {

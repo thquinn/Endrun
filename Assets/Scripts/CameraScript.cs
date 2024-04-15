@@ -7,11 +7,14 @@ public class CameraScript : MonoBehaviour
     int chunksLayer;
     Vector3 chunksCenter, vCenter;
     float distance;
-    public float minDistance, maxDistance, sensitivity, scrollSensitivity;
+    public float minDistance, maxDistance, sensitivity, scrollSensitivity, panSensitivity;
     float horizontalAngle = Mathf.PI * 2 / 3;
     float verticalAngle = Mathf.PI / 6;
     bool firstUpdate;
     bool firstInput;
+    Vector3 pan;
+    bool revertPan;
+    Vector3 vRevertPan;
 
     void Start() {
         chunksLayer = LayerMask.NameToLayer("Chunks");
@@ -39,6 +42,25 @@ public class CameraScript : MonoBehaviour
                 verticalAngle = Mathf.Clamp(verticalAngle, Mathf.PI * .05f, Mathf.PI * .49f);
             }
         }
+        int horizontalInput = Input.GetKey(KeyCode.A) ? -1 : Input.GetKey(KeyCode.D) ? 1 : 0;
+        int verticalInput = Input.GetKey(KeyCode.S) ? -1 : Input.GetKey(KeyCode.W) ? 1 : 0;
+        float zoomedPanSensitivity = panSensitivity * Mathf.Sqrt(distance);
+        pan += horizontalInput * transform.right * zoomedPanSensitivity * Time.deltaTime;
+        Vector3 flatForward = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
+        pan += verticalInput * flatForward * zoomedPanSensitivity * Time.deltaTime;
+        pan = Vector3.ClampMagnitude(pan, 20);
+        if (!revertPan && Input.GetKey(KeyCode.Space)) {
+            revertPan = true;
+            vRevertPan = Vector3.zero;
+        } else if (horizontalInput != 0 || verticalInput != 0) {
+            revertPan = false;
+        }
+        if (revertPan) {
+            pan = Vector3.SmoothDamp(pan, Vector3.zero, ref vRevertPan, 0.1f);
+            if (pan.sqrMagnitude < .1f) {
+                revertPan = false;
+            }
+        }
 
         // Set position.
         float xzDistance = distance * Mathf.Cos(verticalAngle);
@@ -47,6 +69,7 @@ public class CameraScript : MonoBehaviour
         float z = Mathf.Sin(horizontalAngle) * xzDistance;
         transform.localPosition = chunksCenter + new Vector3(x, y, z);
         transform.LookAt(chunksCenter);
+        transform.localPosition += pan;
     }
 
     Vector3 GetChunksCenter() {

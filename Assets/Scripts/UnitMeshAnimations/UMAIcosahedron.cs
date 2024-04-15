@@ -6,12 +6,10 @@ public class UMAIcosahedron : MonoBehaviour
 {
     static float SPEED = 40;
 
-    Vector3 initialPosition;
     Vector3 axis;
     float dx, dy, dz;
 
     void Start() {
-        initialPosition = transform.localPosition;
         float x = Random.Range(0, 2 * Mathf.PI);
         float y = Random.Range(0, 2 * Mathf.PI);
         float z = Random.Range(0, 2 * Mathf.PI);
@@ -19,6 +17,7 @@ public class UMAIcosahedron : MonoBehaviour
         dx = Random.Range(1f, 2f) * Random.value < .5f ? -20 : 20;
         dy = Random.Range(1f, 2f) * Random.value < .5f ? -20 : 20;
         dz = Random.Range(1f, 2f) * Random.value < .5f ? -20 : 20;
+        transform.localRotation = Random.rotationUniform;
     }
 
     void Update() {
