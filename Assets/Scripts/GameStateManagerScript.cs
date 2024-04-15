@@ -103,6 +103,9 @@ public class GameStateManagerScript : MonoBehaviour
                 unitScript.Init(unit);
                 unitScripts[unit] = unitScript;
                 unitColliders[unitScript.GetComponent<Collider>()] = unit;
+                NavMeshAgent agent = unitScript.GetComponent<NavMeshAgent>();
+                agent.updatePosition = false;
+                agent.updateRotation = false;
                 changes = true;
             }
         }

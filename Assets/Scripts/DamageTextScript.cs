@@ -23,7 +23,7 @@ public class DamageTextScript : MonoBehaviour
         float angle = Random.Range(.45f, .5f) * Mathf.PI;
         v = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0);
         v = Quaternion.AngleAxis(Random.Range(0, 360f), Vector3.up) * v;
-        float magnitude = Random.Range(3f, 4f);
+        float magnitude = Random.Range(4f, 5f);
         v *= magnitude;
         // Shove towards camera.
         v += (Camera.main.transform.position - transform.position).normalized;

@@ -73,10 +73,12 @@ namespace Assets.Code
         }
 
         static NavMeshPath TryGetRandomMovePath(Unit unit, NavMeshAgent navMeshAgent) {
-            Vector3 randomPoint = Random.insideUnitSphere * unit.movement.x;
+            Vector3 randomPoint = unit.position + Random.insideUnitSphere * unit.movement.x;
             NavMeshHit navMeshHit;
             NavMesh.SamplePosition(randomPoint, out navMeshHit, unit.movement.x, NavMesh.AllAreas);
-            if (!navMeshHit.hit) return null;
+            if (!navMeshHit.hit) {
+                return null; 
+            }
             NavMeshPath path = new NavMeshPath();
             navMeshAgent.CalculatePath(navMeshHit.position, path);
             float pathLength = NavMeshUtil.GetPathLength(path);

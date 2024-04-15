@@ -9,5 +9,5 @@ public abstract class TooltipBehavior : MonoBehaviour
 }
 
 public class Tooltip {
-    public string header, content;
+    public string header, content, upperRight;
 }

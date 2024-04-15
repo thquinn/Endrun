@@ -12,7 +12,7 @@ public class UITooltipScript : MonoBehaviour
 
     public LayerMask layerMaskWorldTooltips;
     public CanvasGroup canvasGroup;
-    public TextMeshProUGUI tmp;
+    public TextMeshProUGUI tmpMain, tmpUpperRight;
 
     public ITooltippableObject lastHovered;
     public TooltipBehavior hoveredBehavior;
@@ -32,14 +32,15 @@ public class UITooltipScript : MonoBehaviour
             lastHovered = hovered;
             Set();
         }
-        canvasGroup.alpha = Mathf.SmoothDamp(canvasGroup.alpha, hovered == null ? 0 : 1, ref vAlpha, .25f);
+        canvasGroup.alpha = Mathf.SmoothDamp(canvasGroup.alpha, hovered == null ? 0 : 1, ref vAlpha, .1f);
     }
     void Set() {
         if (lastHovered == null) {
             return;
         }
         Tooltip tooltip = lastHovered.GetTooltip();
-        tmp.text = $"<line-indent=-2em><line-height=50%><b><size=150%>{tooltip.header}</size></b>\n</line-height>\n{tooltip.content}";
+        tmpMain.text = $"<line-indent=-2em><line-height=50%><b><size=150%>{tooltip.header}</size></b>\n</line-height>\n{tooltip.content}";
+        tmpUpperRight.text = tooltip.upperRight;
     }
 
     TooltipBehavior GetHoveredBehavior() {

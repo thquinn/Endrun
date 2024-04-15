@@ -45,5 +45,16 @@ namespace Assets.Code
             Physics.Raycast(ray, out hit, delta.magnitude, layerMaskChunks);
             return hit.collider != null;
         }
+
+        public static Predicate<object> GetRangePredicate(Unit unit, float min, float max) {
+            return (object o) => {
+                if (!(o is Vector3)) return false;
+                Vector3 position = (Vector3)o;
+                float distance = Vector3.Distance(position, unit.position);
+                bool inRange = distance >= min && distance <= max;
+                bool flatGround = Vector3.Dot(Vector3.up, NavMeshUtil.GetChunksNormal(position)) > .75f;
+                return inRange && flatGround;
+            };
+        }
     }
 }

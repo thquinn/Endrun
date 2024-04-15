@@ -9,12 +9,12 @@ using UnityEngine;
 namespace Assets.Code.Model
 {
     public class GameState {
-        static UnitTemplate TEMPLATE_SUMMONER = new UnitTemplate("Summoner", "summoner", 7, 6, 0);
-        static UnitTemplate TEMPLATE_BRUTE = new UnitTemplate("Brute", "brute", 10, 5, 3, new SkillMeleeAttack(1), new SkillOpportunist(1));
-        static UnitTemplate TEMPLATE_MEDIC = new UnitTemplate("Medic", "medic", 6, 6, 3, new SkillHealingTouch(1));
-        static UnitTemplate TEMPLATE_SNIPER = new UnitTemplate("Sniper", "sniper", 5, 7, 3, new SkillArrow(1));
-        static UnitTemplate TEMPLATE_WARRIOR = new UnitTemplate("Warrior", "warrior", 8, 7, 3, new SkillMeleeAttack(2));
-
+        static UnitTemplate TEMPLATE_SUMMONER = new UnitTemplate("Summoner", "summoner", 7, 8, 0);
+        static UnitTemplate TEMPLATE_BRUTE = new UnitTemplate("Brute", "brute", 10, 7, 3, new SkillMeleeAttack(1), new SkillOpportunist(1));
+        static UnitTemplate TEMPLATE_MEDIC = new UnitTemplate("Medic", "medic", 6, 9, 3, new SkillHealingTouch(1));
+        static UnitTemplate TEMPLATE_MERIDIAN = new UnitTemplate("Meridian", "meridian", 5, 7, 3, new SkillAccelerate(1), new SkillTeleport(1));
+        static UnitTemplate TEMPLATE_SNIPER = new UnitTemplate("Sniper", "sniper", 5, 10, 3, new SkillArrow(1));
+        static UnitTemplate TEMPLATE_WARRIOR = new UnitTemplate("Warrior", "warrior", 8, 10, 3, new SkillMeleeAttack(2), new SkillSuplex(1));
 
         public GameEventManager gameEventManager;
         public Random.State enemyAIState;
@@ -30,7 +30,7 @@ namespace Assets.Code.Model
             gameEventManager = new GameEventManager();
             enemyAIState = Random.state;
             summonTemplates = new List<UnitTemplate>();
-            summonTemplates.AddRange(new UnitTemplate[] { TEMPLATE_BRUTE, TEMPLATE_MEDIC, TEMPLATE_SNIPER, TEMPLATE_WARRIOR });
+            summonTemplates.AddRange(new UnitTemplate[] { TEMPLATE_BRUTE, TEMPLATE_MEDIC, TEMPLATE_MERIDIAN, TEMPLATE_SNIPER, TEMPLATE_WARRIOR });
             chunks = new List<Chunk>();
             chunks.Add(new Chunk(0, false, false));
             chunks.Add(new Chunk(0, true, true));

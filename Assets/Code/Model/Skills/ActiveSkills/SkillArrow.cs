@@ -50,7 +50,7 @@ namespace Assets.Code.Model.Skills.ActiveSkills
         public override void Resolve(object choice) {
             base.Resolve(choice);
             Unit target = choice as Unit;
-            unit.Attack(target, GetDamage());
+            unit.GetAttacked(target, GetDamage());
             AfterResolve();
         }
     }

@@ -25,11 +25,15 @@ public class UISkillButtonScript : TooltipBehavior
         this.skill = skill;
         this.hotkey = hotkey;
         icon.sprite = atlasSkillIcons.GetSprite(skill.GetIconID());
-        tmpHotkey.text = Util.KeyCodeToString(hotkey);
+        if (skill.type == SkillType.Active) {
+            tmpHotkey.text = Util.KeyCodeToString(hotkey);
+        } else {
+            tmpHotkey.gameObject.SetActive(false);
+        }
         // Summon.
         FakeSkillSummon summonSkill = skill as FakeSkillSummon;
         if (summonSkill != null) {
-            icon.transform.localScale = new Vector3(1.33f, 1.33f, 1);
+            icon.transform.localScale = new Vector3(1.5f, 1.5f, 1);
             Color c = icon.color;
             c.a = .25f;
             icon.color = c;

@@ -54,6 +54,7 @@ public class UnitScript : TooltipBehavior
         Color c = turnSpinnerRenderer.color;
         c.a = 0;
         turnSpinnerRenderer.color = c;
+        Update();
     }
 
     void Update() {

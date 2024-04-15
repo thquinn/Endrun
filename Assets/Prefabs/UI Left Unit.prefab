@@ -805,7 +805,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: focus
+  m_text: focus left
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 9fe433d46e1ad924398218de2f420eee, type: 2}
   m_sharedMaterial: {fileID: -8032308165397277236, guid: 9fe433d46e1ad924398218de2f420eee, type: 2}
@@ -926,11 +926,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefabHPPip: {fileID: 4994692580487604785, guid: e2c7c81c9d937d44197da53d3ee1649b, type: 3}
   prefabManaPip: {fileID: 2309103408977280416, guid: 9918c99a0a2ef4d42a06a6468a209f46, type: 3}
+  atlasUnitIcons: {fileID: 100100200, guid: 8b7f2ce05b517fb4cb06992a8b09b3d1, type: 3}
   spriteUnitFrameSummoner: {fileID: 21300000, guid: c73fa24e3871cc04b8e1a88144b419e1, type: 3}
   rtHPPips: {fileID: 2355919747818245580}
   rtManaPips: {fileID: 1894857690744661382}
   summonerInfo: {fileID: 6276752729254863870}
   imageFrame: {fileID: 5830816115759626634}
+  imageIcon: {fileID: 2501045620081885999}
   tmpName: {fileID: 8498233014605192528}
   tmpFocusCost: {fileID: 788411110931859517}
   tmpFocus: {fileID: 8913651728178497811}

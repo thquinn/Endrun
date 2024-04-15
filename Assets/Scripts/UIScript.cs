@@ -15,7 +15,7 @@ public class UIScript : MonoBehaviour
 
     public GameStateManagerScript gameStateManagerScript;
     public RectTransform rtLeftUnits, rtSkillBar, rtTurnOrderList, rtChunkTimer;
-    public CanvasGroup canvasGroupSkillBar;
+    public CanvasGroup canvasGroupSkillBar, canvasGroupChunkTimer;
     public TextMeshProUGUI tmpChunkTimerTicks, tmpChunkTimerLabel;
 
     Dictionary<Unit, UILeftUnitScript> leftUnitScripts;
@@ -23,11 +23,12 @@ public class UIScript : MonoBehaviour
 
     Unit lastSkillUnit;
     GameState lastTurnGameState;
-    float vChunkTimer;
+    float vChunkTimer, vChunkTimerAlpha;
 
     void Start() {
         leftUnitScripts = new Dictionary<Unit, UILeftUnitScript>();
         unitTurnScripts = new Dictionary<Unit, UIUnitTurnScript>();
+        canvasGroupChunkTimer.alpha = 0;
     }
 
     void Update() {
@@ -38,7 +39,7 @@ public class UIScript : MonoBehaviour
     }
 
     void SyncLeftUnits() {
-        List<Unit> units = gameStateManagerScript.gameState.units;
+        var units = gameStateManagerScript.gameState.units.OrderBy(u => u.id);
         foreach (Unit unit in units) {
             if (unit.playerControlled && !leftUnitScripts.ContainsKey(unit)) {
                 UILeftUnitScript leftUnitScript = Instantiate(prefabUILeftUnit, rtLeftUnits).GetComponent<UILeftUnitScript>();
@@ -108,8 +109,9 @@ public class UIScript : MonoBehaviour
         int ticks = gameStateManagerScript.gameState.chunkTicks;
         tmpChunkTimerTicks.text = ticks.ToString();
         tmpChunkTimerLabel.text = ticks == 1 ? "tick\nremaining" : "ticks\nremaining";
-        float targetX = gameStateManagerScript.gameState.units.Count * -UIUnitTurnScript.SPACING + 20;
+        float targetX = gameStateManagerScript.gameState.units.Count * -UIUnitTurnScript.SPACING;
         float x = Mathf.SmoothDamp(rtChunkTimer.anchoredPosition.x, targetX, ref vChunkTimer, .2f);
         rtChunkTimer.anchoredPosition = new Vector2(x, 0);
+        canvasGroupChunkTimer.alpha = Mathf.SmoothDamp(canvasGroupChunkTimer.alpha, 1, ref vChunkTimerAlpha, .2f);
     }
 }

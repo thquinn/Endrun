@@ -57,7 +57,7 @@ public class MoveUIScript : MonoBehaviour
                 NavMesh.SamplePosition(worldSpace, out navMeshHit, 3f, NavMesh.AllAreas);
                 if (!navMeshHit.hit) continue;
                 Vector2 xzDistance = new Vector2(worldSpace.x - navMeshHit.position.x, worldSpace.z - navMeshHit.position.z);
-                if (xzDistance.magnitude > GRID_SIZE * 1.25f) continue;
+                if (xzDistance.magnitude > GRID_SIZE * .2f) continue;
                 NavMesh.CalculatePath(agent.transform.position, navMeshHit.position, NavMesh.AllAreas, path);
                 if (path.status != NavMeshPathStatus.PathComplete) continue;
                 if (NavMeshUtil.GetPathLength(path) <= unit.movement.x) {
@@ -147,11 +147,13 @@ public class MoveUIScript : MonoBehaviour
             unit = unitToShow;
             if (unit != null) {
                 agent = GameStateManagerScript.instance.unitScripts[unit].GetComponent<NavMeshAgent>();
+                agent.nextPosition = unit.position;
                 meshFilter.mesh = null;
                 rebuildMesh = true; // wait 1 frame for navmesh to rebuild
             }
         } else if (rebuildMesh && unit != null) {
             BuildPreviewMesh();
+            rebuildMesh = false;
         }
         meshFilter.gameObject.SetActive(unit != null);
         lineRenderer.gameObject.SetActive(unit != null);

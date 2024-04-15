@@ -12,11 +12,14 @@ using UnityEngine.AI;
 namespace Assets.Code.Model
 {
     public class Unit : ITooltippableObject {
+        static int ID = 0;
+
         public GameState gameState;
+        public int id;
         public bool isSummoner;
         public bool playerControlled;
         public Vector3 position;
-        public int ticksUntilTurn;
+        public int ticksUntilTurn, accumulatedTicks;
         public bool dead;
         // From template:
         public List<Skill> skills;
@@ -29,6 +32,7 @@ namespace Assets.Code.Model
 
         public Unit(GameState gameState, UnitControlType type, Vector3 position, UnitTemplate template) {
             this.gameState = gameState;
+            id = ID++;
             isSummoner = type == UnitControlType.Summoner;
             playerControlled = type != UnitControlType.Enemy;
             this.position = position;
@@ -64,6 +68,17 @@ namespace Assets.Code.Model
             return xzDistance < coneRadius * multiplier;
         }
 
+        public void MoveTo(Vector3 to) {
+            Vector3 from = position;
+            position = to;
+            gameState.gameEventManager.Trigger(new GameEvent() {
+                type = GameEventType.MovementSegment,
+                unitSource = this,
+                actionDetail = new ActionDetail() {
+                    positions = new Vector3[] { from, to },
+                },
+            });
+        }
         public void Move(NavMeshPath path) {
             gameState.gameEventManager.Trigger(new GameEvent() {
                 type = GameEventType.BeforeMove,
@@ -76,7 +91,7 @@ namespace Assets.Code.Model
             movement.x -= length;
             GameStateManagerScript.instance.EnqueueAnimation(new MoveAnimation(this, path, length));
         }
-        public void Attack(Unit target, int amount) {
+        public void GetAttacked(Unit target, int amount) {
             target.Damage(amount);
         }
         public void Damage(int amount) {
@@ -101,9 +116,10 @@ namespace Assets.Code.Model
             hp.x += amount;
         }
         public void EndTurn() {
+            SetTicks(accumulatedTicks + 10);
             movement.x = movement.y;
             actions = 1;
-            SetTicks(10);
+            accumulatedTicks = 0;
             gameState.EndTurn();
             gameState.gameEventManager.Trigger(new GameEvent() {
                 type = GameEventType.TurnStart,
@@ -117,6 +133,26 @@ namespace Assets.Code.Model
                 desiredTicks++;
             }
             ticksUntilTurn = desiredTicks;
+        }
+        public void SetTicksAndPush(int desiredTicks) {
+            // Sets ticksUntilTurn to the desired number, and pushes other units down the order in case of a tie.
+            gameState.units.Remove(this);
+            int tickCheck = desiredTicks;
+            List<Unit> unitsToIncrement = new List<Unit>();
+            foreach (Unit u in gameState.units) {
+                if (u.ticksUntilTurn < tickCheck) continue;
+                if (u.ticksUntilTurn == tickCheck) {
+                    tickCheck++;
+                    unitsToIncrement.Add(u);
+                }
+                if (u.ticksUntilTurn > ticksUntilTurn) break;
+            }
+            foreach (Unit u in unitsToIncrement) {
+                u.ticksUntilTurn++;
+            }
+            ticksUntilTurn = desiredTicks;
+            gameState.units.Add(this);
+            gameState.SortUnits();
         }
 
         public Tooltip GetTooltip() {

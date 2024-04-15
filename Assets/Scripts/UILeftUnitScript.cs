@@ -1,18 +1,21 @@
+using Assets.Code;
 using Assets.Code.Model;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.U2D;
 using UnityEngine.UI;
 
 public class UILeftUnitScript : MonoBehaviour
 {
     public GameObject prefabHPPip, prefabManaPip;
+    public SpriteAtlas atlasUnitIcons;
     public Sprite spriteUnitFrameSummoner;
 
     public RectTransform rtHPPips, rtManaPips;
     public GameObject summonerInfo;
-    public Image imageFrame;
+    public Image imageFrame, imageIcon;
     public TextMeshProUGUI tmpName, tmpFocusCost;
     // Summoner info.
     public TextMeshProUGUI tmpFocus;
@@ -27,6 +30,10 @@ public class UILeftUnitScript : MonoBehaviour
         rt = transform as RectTransform;
         this.unit = unit;
         gameStateManager = GameStateManagerScript.instance;
+        imageIcon.sprite = atlasUnitIcons.GetSprite(unit.iconID);
+        Color c = Util.GetUnitUIColor(unit);
+        c.a = imageIcon.color.a;
+        imageIcon.color = c;
         if (unit.isSummoner) {
             rt.sizeDelta = new Vector2(100, 220);
             summonerInfo.SetActive(true);

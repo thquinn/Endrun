@@ -32,6 +32,8 @@ namespace Assets.Code.Model.Skills
         public abstract string GetDescription();
         public abstract string GetIconID();
         public virtual bool RequiresAction() { return type == SkillType.Active; }
+        public virtual int GetTickCost() { return 0; }
+        public virtual int GetManaCost() { return 0; }
         public virtual int GetActivationCooldown() { return 0; }
         public virtual SkillDecision GetDecision() {
             Debug.Assert(type == SkillType.Active);
@@ -44,7 +46,13 @@ namespace Assets.Code.Model.Skills
             if (RequiresAction() && unit.actions <= 0) {
                 return false;
             }
+            if (unit.gameState.mana.x < GetManaCost() && unit.playerControlled) {
+                return false;
+            }
             if (cooldown > 0) {
+                return false;
+            }
+            if (GameStateManagerScript.instance.animationManager.IsAnythingAnimating()) {
                 return false;
             }
             return true;
@@ -84,13 +92,35 @@ namespace Assets.Code.Model.Skills
             if (RequiresAction()) {
                 unit.actions--;
             }
+            unit.accumulatedTicks += GetTickCost();
+            if (unit.playerControlled) {
+                unit.gameState.mana.x -= GetManaCost();
+            }
             cooldown = GetActivationCooldown();
         }
 
         public virtual Tooltip GetTooltip() {
+            int ticks = GetTickCost();
+            int actions = RequiresAction() ? 1 : 0;
+            int mana = GetManaCost();
+            string costString = "";
+            if (actions > 0 || ticks > 0 || mana > 0) {
+                string actionsIcons = string.Concat(Enumerable.Repeat("<sprite name=\"cost_action\">", actions));
+                string actionsWords = actions == 0 ? "" : actions == 1 ? "one action" : $"{actions} actions";
+                string ticksIcons = ticks == 0 ? "" : $"{ticks}<sprite name=\"cost_tick\">";
+                string ticksWords = ticks == 0 ? "" : ticks == 1 ? "one tick" : $"{ticks} ticks";
+                string manaIcons = string.Concat(Enumerable.Repeat("<sprite name=\"cost_mana\">", mana));
+                string manaWords = mana == 0 ? "" : mana == 1 ? "one mana" : $"{mana} mana";
+                string costIcons, costWords;
+                costIcons = string.Join(" ", new string[] { actionsIcons, ticksIcons, manaIcons }.Where(s => s.Length > 0));
+                costWords = string.Join(", ", new string[] { actionsWords, ticksWords, manaWords }.Where(s => s.Length > 0));
+                costString = $"cost: {costIcons}\n<size=66%>({costWords})";
+            }
+
             return new Tooltip() {
                 header = GetLeveledName(),
                 content = GetDescription(),
+                upperRight = costString,
             };
         }
         public override string ToString() {

@@ -23,6 +23,9 @@ namespace Assets.Code.Model.Skills
             return new FakeSkillSummon(this);
         }
 
+        public override int GetManaCost() {
+            return template.focusCost;
+        }
         public override string GetDescription() {
             return string.Format($"Summon an ally. Requires <b>{template.focusCost}</b> mana and focus.");
         }
@@ -32,23 +35,15 @@ namespace Assets.Code.Model.Skills
 
         public override bool CanActivate() {
             int focusLeft = unit.gameState.maxFocus - unit.gameState.GetTotalAllyFocus();
-            return base.CanActivate() && unit.gameState.mana.x >= template.focusCost && focusLeft >= template.focusCost;
+            return base.CanActivate() && focusLeft >= template.focusCost;
         }
 
         public override SkillDecision GetDecision() {
-            Predicate<object> predicate = (o) => {
-                if (!(o is Vector3)) return false;
-                Vector3 position = (Vector3) o;
-                float  distance = Vector3.Distance(position, unit.position);
-                bool inRange = distance >= MIN_RANGE && distance <= MAX_RANGE;
-                bool flatGround = Vector3.Dot(Vector3.up, NavMeshUtil.GetChunksNormal(position)) > .75f;
-                return inRange && flatGround;
-            };
             return new SkillDecision(this,
                                      "test",
                                      RangePreviewType.Sphere,
                                      MAX_RANGE,
-                                     predicate,
+                                     RangeUtil.GetRangePredicate(unit, MIN_RANGE, MAX_RANGE),
                                      RangePreviewType.Ring,
                                      1f);
         }
