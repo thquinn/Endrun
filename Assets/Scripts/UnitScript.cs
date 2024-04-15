@@ -78,14 +78,14 @@ public class UnitScript : TooltipBehavior
         SyncEnemyHP();
     }
 
-    public void ToggleCollider(Unit activeUnit) {
-        if (unit == activeUnit) {
-            navMeshObstacle.enabled = false;
-            navMeshAgent.enabled = true;
-        } else {
+    public void ToggleCollider(bool on) {
+        if (on) {
             // order matters to avoid getting an annoying warning :|
             navMeshAgent.enabled = false;
             navMeshObstacle.enabled = true;
+        } else {
+            navMeshObstacle.enabled = false;
+            navMeshAgent.enabled = true;
         }
     }
 

@@ -58,7 +58,7 @@ public class MoveUIScript : MonoBehaviour
                 if (!navMeshHit.hit) continue;
                 Vector2 xzDistance = new Vector2(worldSpace.x - navMeshHit.position.x, worldSpace.z - navMeshHit.position.z);
                 if (xzDistance.magnitude > GRID_SIZE * .2f) continue;
-                NavMesh.CalculatePath(agent.transform.position, navMeshHit.position, NavMesh.AllAreas, path);
+                agent.CalculatePath(navMeshHit.position, path);
                 if (path.status != NavMeshPathStatus.PathComplete) continue;
                 if (NavMeshUtil.GetPathLength(path) <= unit.movement.x) {
                     coorsPathable.Add(neighbor, navMeshHit.position);

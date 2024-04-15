@@ -141,11 +141,14 @@ public class GameStateManagerScript : MonoBehaviour
     bool ToggleColliders() {
         Unit activeUnit = GetActiveUnit();
         foreach (UnitScript unitScript in unitScripts.Values) {
-            unitScript.ToggleCollider(activeUnit);
+            unitScript.ToggleCollider(unitScript.unit != activeUnit);
         }
         return false;
     }
     void KillOffMeshUnits() {
+        foreach (UnitScript unitScript in unitScripts.Values) {
+            unitScript.ToggleCollider(false);
+        }
         foreach (Unit unit in gameState.units) {
             NavMeshHit navMeshHit;
             NavMesh.SamplePosition(unit.position, out navMeshHit, 3f, NavMesh.AllAreas);
@@ -154,6 +157,7 @@ public class GameStateManagerScript : MonoBehaviour
             }
         }
         gameState.RemoveDeadUnits();
+        ToggleColliders();
     }
 
     public Unit GetActiveUnit() {
