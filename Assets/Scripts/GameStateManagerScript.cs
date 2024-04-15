@@ -32,8 +32,11 @@ public class GameStateManagerScript : MonoBehaviour
     public AnimationManager animationManager;
     public Unit hoveredUnit;
 
+    float[] chunkWeights;
+
     void Start() {
         instance = this;
+        chunkWeights = prefabChunks.Select(p => p.GetComponent<ChunkInfoScript>().weight).ToArray();
         gameState = new GameState();
         undoHistory = new Stack<GameState>();
         chunkScripts = new Dictionary<Chunk, ChunkInfoScript>();
@@ -54,7 +57,7 @@ public class GameStateManagerScript : MonoBehaviour
             gameState.chunkTicks += 100;
         }
         if (Input.GetKeyDown(KeyCode.F2)) {
-            gameState.chunks.Add(new Chunk(Random.Range(0, prefabChunks.Length), Random.value < .5f, Random.value < .5f));
+            gameState.chunks.Add(new Chunk(GetRandomChunkIndex(), Random.value < .5f, Random.value < .5f));
         }
         // END DEBUG
         SyncChunks();
@@ -69,7 +72,7 @@ public class GameStateManagerScript : MonoBehaviour
             Chunk chunk = gameState.chunks[i];
             if (!chunkScripts.ContainsKey(chunk)) {
                 ChunkInfoScript chunkScript = Instantiate(prefabChunks[chunk.index]).GetComponent<ChunkInfoScript>();
-                chunkScript.transform.localScale = new Vector3(chunk.flipX ? -1 : 1, 1, chunk.flipZ ? -1 : 1);
+                chunkScript.transform.localScale = new Vector3(chunkScript.transform.localScale.x * (chunk.flipX ? -1 : 1), 1, chunkScript.transform.localScale.z * (chunk.flipZ ? -1 : 1));
                 chunkScripts[chunk] = chunkScript;
                 changes = true;
                 if (i > 0) {
@@ -167,6 +170,17 @@ public class GameStateManagerScript : MonoBehaviour
 
     public Unit GetActiveUnit() {
         return gameState.GetActiveUnit();
+    }
+    public int GetRandomChunkIndex() {
+        float sum = chunkWeights.Sum();
+        float selector = Random.Range(0, sum);
+        for (int i = 0; i < chunkWeights.Length; i++) {
+            if (selector <= chunkWeights[i]) {
+                return i;
+            }
+            selector -= chunkWeights[i];
+        }
+        return -1;
     }
 
     public void Listen(GameEventType type, Predicate<GameEvent> predicate, Func<GameEvent, bool> func) {

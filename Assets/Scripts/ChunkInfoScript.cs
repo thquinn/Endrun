@@ -3,5 +3,5 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ChunkInfoScript : MonoBehaviour {
-    public float yOffsetBack, yOffsetFront;
+    public float yOffsetBack, yOffsetFront, weight;
 }

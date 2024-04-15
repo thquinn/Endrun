@@ -20,7 +20,7 @@ namespace Assets.Code.Model
         public Random.State enemyAIState;
         public List<UnitTemplate> summonTemplates;
         public List<Chunk> chunks;
-        public int chunkTicks;
+        public int level, chunkTicks;
         public List<Unit> units;
         public int maxFocus;
         public Vector2Int mana;
@@ -85,8 +85,9 @@ namespace Assets.Code.Model
         void AddChunk() {
             if (chunks.Count >= 2) {
                 chunks.RemoveAt(0);
+                level++;
             }
-            int chunkIndex = Random.Range(0, GameStateManagerScript.instance.prefabChunks.Length);
+            int chunkIndex = GameStateManagerScript.instance.GetRandomChunkIndex();
             chunks.Add(new Chunk(chunkIndex, Random.value < .5f, Random.value < .5f));
             chunkTicks = Constants.BALANCE_CHUNK_TIMER;
         }

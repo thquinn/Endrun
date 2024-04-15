@@ -1,10 +1,10 @@
+using Assets.Code;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraScript : MonoBehaviour
 {
-    int chunksLayer;
     Vector3 chunksCenter, vCenter;
     float distance;
     public float minDistance, maxDistance, sensitivity, scrollSensitivity, panSensitivity, rotateSensitivity;
@@ -16,16 +16,12 @@ public class CameraScript : MonoBehaviour
     bool revertPan;
     Vector3 vRevertPan;
 
-    void Start() {
-        chunksLayer = LayerMask.NameToLayer("Chunks");
-    }
-
     void Update() {
         if (!firstUpdate) {
-            chunksCenter = GetChunksCenter();
+            chunksCenter = Util.GetChunksCenter(gameObject.scene);
             firstUpdate = true;
         } else {
-            chunksCenter = Vector3.SmoothDamp(chunksCenter, GetChunksCenter(), ref vCenter, .33f);
+            chunksCenter = Vector3.SmoothDamp(chunksCenter, Util.GetChunksCenter(gameObject.scene), ref vCenter, .33f);
         }
 
         // Input.
@@ -72,21 +68,5 @@ public class CameraScript : MonoBehaviour
         transform.localPosition = chunksCenter + new Vector3(x, y, z);
         transform.LookAt(chunksCenter);
         transform.localPosition += pan;
-    }
-
-    Vector3 GetChunksCenter() {
-        Bounds bounds = new Bounds();
-        foreach (GameObject go in gameObject.scene.GetRootGameObjects()) {
-            if (go.layer == chunksLayer) {
-                Bounds chunkBounds = go.GetComponent<Collider>().bounds;
-                if (bounds.size.x == 0) {
-                    bounds = chunkBounds;
-                } else {
-                    bounds.Encapsulate(chunkBounds.min);
-                    bounds.Encapsulate(chunkBounds.max);
-                }
-            }
-        }
-        return bounds.center;
     }
 }

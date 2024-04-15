@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
 namespace Assets.Code
@@ -72,6 +73,24 @@ namespace Assets.Code
                 return Vector3.zero;
             }
             return hit.point;
+        }
+
+        public static Vector3 GetChunksCenter(Scene scene) {
+            int chunksLayer = LayerMask.NameToLayer("Chunks");
+            Bounds bounds = new Bounds();
+            foreach (GameObject go in scene.GetRootGameObjects()) {
+                if (go.layer == chunksLayer) {
+                    Bounds chunkBounds = go.GetComponent<Collider>().bounds;
+                    if (bounds.size.x == 0) {
+                        bounds = chunkBounds;
+                    }
+                    else {
+                        bounds.Encapsulate(chunkBounds.min);
+                        bounds.Encapsulate(chunkBounds.max);
+                    }
+                }
+            }
+            return bounds.center;
         }
     }
 }
