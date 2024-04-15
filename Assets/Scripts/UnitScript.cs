@@ -104,10 +104,12 @@ public class UnitScript : TooltipBehavior
             enemyHPPipOutlines.RemoveAt(enemyHPPipOutlines.Count - 1);
             enemyHPPipFills.RemoveAt(enemyHPPipFills.Count - 1);
         }
+        int rowSize = enemyHPPipOutlines.Count <= 10 ? 5 : 10;
+        enemyHPSlider.transform.localScale = enemyHPPipOutlines.Count <= 10 ? Vector3.one : new Vector3(.5f, .5f, 1);
         for (int i = 0; i < enemyHPPipOutlines.Count; i++) {
-            int xIndex = (i % 5) - 2;
-            int rowCount = Mathf.CeilToInt(unit.hp.y / 5f);
-            float yIndex = (rowCount - 1) / 2f - (i / 5);
+            int xIndex = (i % rowSize) - (rowSize / 2);
+            int rowCount = Mathf.CeilToInt(unit.hp.y / (float)rowSize);
+            float yIndex = (rowCount - 1) / 2f - (i / rowSize);
             enemyHPPipOutlines[i].transform.localPosition = new Vector3(xIndex * -.15f, yIndex * .29f, enemyHPPipOutlines[i].transform.localPosition.z);
             enemyHPPipFills[i].enabled = unit.hp.x > i;
         }

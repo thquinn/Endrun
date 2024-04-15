@@ -10,6 +10,7 @@ using Force.DeepCloner;
 using UnityEditor.AI;
 using Unity.AI.Navigation;
 using UnityEngine.AI;
+using Random = UnityEngine.Random;
 
 public class GameStateManagerScript : MonoBehaviour
 {
@@ -53,7 +54,7 @@ public class GameStateManagerScript : MonoBehaviour
             gameState.chunkTicks += 100;
         }
         if (Input.GetKeyDown(KeyCode.F2)) {
-            gameState.chunks.Add(new Chunk(0, UnityEngine.Random.value < .5f, UnityEngine.Random.value < .5f));
+            gameState.chunks.Add(new Chunk(Random.Range(0, prefabChunks.Length), Random.value < .5f, Random.value < .5f));
         }
         // END DEBUG
         SyncChunks();
@@ -92,10 +93,15 @@ public class GameStateManagerScript : MonoBehaviour
             changes = true;
         }
         if (changes) {
+            foreach (UnitScript unitScript in unitScripts.Values) {
+                unitScript.ToggleCollider(false);
+            }
             navMeshSurface.BuildNavMesh();
             if (kill) {
                 KillOffMeshUnits();
+                undoHistory.Clear();
             }
+            ToggleColliders();
         }
     }
     void SyncUnits() {
@@ -149,9 +155,6 @@ public class GameStateManagerScript : MonoBehaviour
         return false;
     }
     void KillOffMeshUnits() {
-        foreach (UnitScript unitScript in unitScripts.Values) {
-            unitScript.ToggleCollider(false);
-        }
         foreach (Unit unit in gameState.units) {
             NavMeshHit navMeshHit;
             NavMesh.SamplePosition(unit.position, out navMeshHit, 3f, NavMesh.AllAreas);
@@ -160,7 +163,6 @@ public class GameStateManagerScript : MonoBehaviour
             }
         }
         gameState.RemoveDeadUnits();
-        ToggleColliders();
     }
 
     public Unit GetActiveUnit() {

@@ -116,7 +116,7 @@ namespace Assets.Code.Model
             hp.x += amount;
         }
         public void EndTurn() {
-            SetTicks(accumulatedTicks + 10);
+            SetTicks(accumulatedTicks + Constants.BALANCE_BASE_TURN_TICKS);
             movement.x = movement.y;
             actions = 1;
             accumulatedTicks = 0;

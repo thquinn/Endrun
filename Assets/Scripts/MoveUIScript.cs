@@ -170,7 +170,10 @@ public class MoveUIScript : MonoBehaviour
             ClearPathPreview();
         } else {
             path = new NavMeshPath();
-            NavMesh.CalculatePath(unit.position, target, NavMesh.AllAreas, path);
+            NavMesh.CalculatePath(unit.position, target, new NavMeshQueryFilter() {
+                agentTypeID = agent.agentTypeID,
+                areaMask = NavMesh.AllAreas,
+            }, path);
             pathLength = NavMeshUtil.GetPathLength(path);
             if (pathLength > unit.movement.x || path.corners.Length < 2) {
                 ClearPathPreview();

@@ -695,7 +695,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2891730374755082736}
-  - component: {fileID: 482087844387763206}
   m_Layer: 6
   m_Name: Mesh Container
   m_TagString: Mesh Container
@@ -719,18 +718,6 @@ Transform:
   - {fileID: 6040105592180824387}
   m_Father: {fileID: 3086986580998941733}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &482087844387763206
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6302292464378254556}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f949158c151e344b9e5a906db64bdaa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &6670788459754810330
 GameObject:
   m_ObjectHideFlags: 0

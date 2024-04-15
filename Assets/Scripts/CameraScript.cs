@@ -7,7 +7,7 @@ public class CameraScript : MonoBehaviour
     int chunksLayer;
     Vector3 chunksCenter, vCenter;
     float distance;
-    public float minDistance, maxDistance, sensitivity, scrollSensitivity, panSensitivity;
+    public float minDistance, maxDistance, sensitivity, scrollSensitivity, panSensitivity, rotateSensitivity;
     float horizontalAngle = Mathf.PI * 2 / 3;
     float verticalAngle = Mathf.PI / 6;
     bool firstUpdate;
@@ -61,6 +61,8 @@ public class CameraScript : MonoBehaviour
                 revertPan = false;
             }
         }
+        int rotInput = Input.GetKey(KeyCode.Q) ? -1 : Input.GetKey(KeyCode.E) ? 1 : 0;
+        horizontalAngle += rotInput * rotateSensitivity * Time.deltaTime;
 
         // Set position.
         float xzDistance = distance * Mathf.Cos(verticalAngle);

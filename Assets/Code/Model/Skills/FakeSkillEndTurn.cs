@@ -21,7 +21,11 @@ namespace Assets.Code.Model.Skills
         }
 
         public override string GetDescription() {
-            return string.Format($"End this unit's turn.");
+            if (unit.accumulatedTicks == 0) {
+                return $"End this unit's turn. It will be {Constants.BALANCE_BASE_TURN_TICKS} before it acts again.";
+            }
+            string tickOrTicks = unit.accumulatedTicks == 1 ? "tick" : "ticks";
+            return $"End this unit's turn. It will be {Constants.BALANCE_BASE_TURN_TICKS} before it acts again, plus the {unit.accumulatedTicks} {tickOrTicks} it spent during its turn.";
         }
         public override string GetIconID() {
             return "end_turn";

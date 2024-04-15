@@ -27,7 +27,7 @@ namespace Assets.Code.Model.Skills.ActiveSkills
             return string.Format($"Reduce an ally's wait time by {GetTicks()}.");
         }
         public override string GetIconID() {
-            return "melee_attack";
+            return "accelerate";
         }
 
         public int GetTicks() {

@@ -9,6 +9,7 @@ namespace Assets.Code
 {
     public static class Constants {
         public static int BALANCE_CHUNK_TIMER = 50; // # ticks before
+        public static int BALANCE_BASE_TURN_TICKS = 10;
 
         public static float COMBAT_MELEE_RADIUS = 2.25f;
         public static float COMBAT_SUMMON_RADIUS = 4f;

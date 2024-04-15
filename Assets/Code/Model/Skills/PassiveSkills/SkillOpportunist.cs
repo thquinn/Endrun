@@ -46,6 +46,7 @@ namespace Assets.Code.Model.Skills.PassiveSkills
             if (RangeUtil.WithinMeleeRange(unit.position, from) && !RangeUtil.WithinMeleeRange(unit.position, to)) {
                 e.unitSource.Damage(GetDamage());
             }
+            // TODO: limit once per turn
             return false;
         }
     }

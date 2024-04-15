@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.UI;
 
-public class UILeftUnitScript : MonoBehaviour
+public class UILeftUnitScript : TooltipBehavior
 {
     public GameObject prefabHPPip, prefabManaPip;
     public SpriteAtlas atlasUnitIcons;
@@ -17,6 +17,7 @@ public class UILeftUnitScript : MonoBehaviour
     public GameObject summonerInfo;
     public Image imageFrame, imageIcon;
     public TextMeshProUGUI tmpName, tmpFocusCost;
+    public GridLayoutGroup gridHP;
     // Summoner info.
     public TextMeshProUGUI tmpFocus;
 
@@ -64,6 +65,8 @@ public class UILeftUnitScript : MonoBehaviour
         for (int i = 0; i < hpPips.Count; i++) {
             hpPips[i].enabled = unit.hp.x > i;
         }
+        gridHP.cellSize = hpPips.Count <= 10 ? new Vector2(24, 48) : new Vector2(12, 24);
+        gridHP.spacing = hpPips.Count <= 10 ? new Vector2(0, 4) : new Vector2(0, 1.4f);
     }
     void SyncSummonerInfo() {
         if (!unit.isSummoner) return;
@@ -84,5 +87,9 @@ public class UILeftUnitScript : MonoBehaviour
         for (int i = 0; i < manaPips.Count; i++) {
             manaPips[i].enabled = gameStateManager.gameState.mana.x <= i;
         }
+    }
+
+    public override ITooltippableObject GetTooltippableObject() {
+        return unit;
     }
 }

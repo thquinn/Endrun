@@ -10,7 +10,7 @@ namespace Assets.Code.Model
 {
     public class GameState {
         static UnitTemplate TEMPLATE_SUMMONER = new UnitTemplate("Summoner", "summoner", 7, 8, 0);
-        static UnitTemplate TEMPLATE_BRUTE = new UnitTemplate("Brute", "brute", 10, 7, 3, new SkillMeleeAttack(1), new SkillOpportunist(1));
+        static UnitTemplate TEMPLATE_BRUTE = new UnitTemplate("Brute", "brute", 9, 7, 3, new SkillMeleeAttack(1), new SkillOpportunist(1));
         static UnitTemplate TEMPLATE_MEDIC = new UnitTemplate("Medic", "medic", 6, 9, 3, new SkillHealingTouch(1));
         static UnitTemplate TEMPLATE_MERIDIAN = new UnitTemplate("Meridian", "meridian", 5, 7, 3, new SkillAccelerate(1), new SkillTeleport(1));
         static UnitTemplate TEMPLATE_SNIPER = new UnitTemplate("Sniper", "sniper", 5, 10, 3, new SkillArrow(1));
@@ -33,7 +33,7 @@ namespace Assets.Code.Model
             summonTemplates.AddRange(new UnitTemplate[] { TEMPLATE_BRUTE, TEMPLATE_MEDIC, TEMPLATE_MERIDIAN, TEMPLATE_SNIPER, TEMPLATE_WARRIOR });
             chunks = new List<Chunk>();
             chunks.Add(new Chunk(0, false, false));
-            chunks.Add(new Chunk(0, true, true));
+            AddChunk();
             chunkTicks = Constants.BALANCE_CHUNK_TIMER;
             units = new List<Unit>();
             maxFocus = 10;
@@ -79,12 +79,15 @@ namespace Assets.Code.Model
             }
             chunkTicks -= tickDecrement;
             if (chunkTicks <= 0) {
-                ChunkSwap();
+                AddChunk();
             }
         }
-        void ChunkSwap() {
-            chunks.RemoveAt(0);
-            chunks.Add(new Chunk(0, true, true));
+        void AddChunk() {
+            if (chunks.Count >= 2) {
+                chunks.RemoveAt(0);
+            }
+            int chunkIndex = Random.Range(0, GameStateManagerScript.instance.prefabChunks.Length);
+            chunks.Add(new Chunk(chunkIndex, Random.value < .5f, Random.value < .5f));
             chunkTicks = Constants.BALANCE_CHUNK_TIMER;
         }
 
