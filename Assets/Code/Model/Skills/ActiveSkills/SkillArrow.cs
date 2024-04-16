@@ -36,21 +36,25 @@ namespace Assets.Code.Model.Skills.ActiveSkills
             return MAX_RANGE + (level - 1) * MAX_RANGE_INCREMENT;
         }
 
-        public override SkillDecision GetDecision() {
+        public override object[] GetTargets() {
             HashSet<Unit> withinMax = new HashSet<Unit>(RangeUtil.GetVisibleEnemiesWithinCone(unit, GetMaxRange()));
             foreach (Unit unit in RangeUtil.GetVisibleEnemiesWithinRadius(unit, MIN_RANGE)) {
                 withinMax.Remove(unit);
             }
+            return withinMax.ToArray();
+        }
+        public override SkillDecision GetDecision() {
+            
             return new SkillDecision(this,
                                      "test",
                                      RangePreviewType.Cone,
                                      MAX_RANGE,
-                                     withinMax.ToArray());
+                                     GetTargets());
         }
         public override void Resolve(object choice) {
             base.Resolve(choice);
             Unit target = choice as Unit;
-            unit.GetAttacked(target, GetDamage());
+            unit.Attack(target, GetDamage());
             AfterResolve();
         }
     }

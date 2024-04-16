@@ -56,14 +56,14 @@ public class UIScript : MonoBehaviour
 
     void SyncSkillBar() {
         Unit activeUnit = gameStateManagerScript.GetActiveUnit();
-        if (!activeUnit.playerControlled) activeUnit = null;
+        if (!activeUnit?.playerControlled == true) activeUnit = null;
         if (lastSkillUnit != activeUnit) {
             foreach (Transform child in rtSkillBar) {
                 Destroy(child.gameObject);
             }
+            List<Skill> skills = new List<Skill>();
+            skills.Add(new FakeSkillUndo());
             if (activeUnit != null) {
-                List<Skill> skills = new List<Skill>();
-                skills.Add(new FakeSkillUndo(activeUnit));
                 skills.Add(new FakeSkillEndTurn(activeUnit));
                 if (activeUnit.isSummoner) {
                     foreach (UnitTemplate template in activeUnit.gameState.summonTemplates) {
@@ -71,17 +71,13 @@ public class UIScript : MonoBehaviour
                     }
                 }
                 skills.AddRange(activeUnit.skills);
-                for (int i = 0; i < skills.Count; i++) {
-                    Instantiate(prefabSkillButton, rtSkillBar).GetComponent<UISkillButtonScript>().Init(skills[i], SKILL_HOTKEYS[i]);
-                }
+            }
+            for (int i = 0; i < skills.Count; i++) {
+                Instantiate(prefabSkillButton, rtSkillBar).GetComponent<UISkillButtonScript>().Init(skills[i], SKILL_HOTKEYS[i]);
             }
             lastSkillUnit = activeUnit;
         }
-        float alpha = 0;
-        if (activeUnit != null) {
-            alpha = gameStateManagerScript.animationManager.IsAnythingAnimating() ? .5f : 1;
-        }
-        canvasGroupSkillBar.alpha = alpha;
+        canvasGroupSkillBar.alpha = gameStateManagerScript.animationManager.IsAnythingAnimating() ? .5f : 1;
     }
 
     void SyncTurnOrder() {

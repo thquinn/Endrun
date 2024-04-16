@@ -140,6 +140,7 @@ namespace Assets.Code.Model.Skills
     {
         public ActiveSkill(int level) : base(SkillType.Active, level) { }
         public ActiveSkill(ActiveSkill other) : base(other) { }
+        public virtual object[] GetTargets() { return null; }
     }
     public abstract class PassiveSkill : Skill
     {

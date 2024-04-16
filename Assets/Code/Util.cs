@@ -12,6 +12,10 @@ namespace Assets.Code
 {
     public static class Util
     {
+        public static float NormalizedSin(float f) {
+            return Mathf.Sin(f) * .5f + .5f;
+        }
+
         public static List<T> Shuffle<T>(this List<T> list) {
             int n = list.Count;
             for (int i = 0; i < n; i++) {
@@ -21,6 +25,9 @@ namespace Assets.Code
                 list[i] = t;
             }
             return list;
+        }
+        public static T ChooseRandom<T>(IList<T> list) {
+            return list[Random.Range(0, list.Count)];
         }
 
         public static string KeyCodeToString(KeyCode keyCode) {
@@ -80,14 +87,17 @@ namespace Assets.Code
             Bounds bounds = new Bounds();
             foreach (GameObject go in scene.GetRootGameObjects()) {
                 if (go.layer == chunksLayer) {
-                    Bounds chunkBounds = go.GetComponent<Collider>().bounds;
-                    if (bounds.size.x == 0) {
-                        bounds = chunkBounds;
+                    foreach (Collider collider in go.GetComponentsInChildren<Collider>()) {
+                        Bounds chunkBounds = collider.bounds;
+                        if (bounds.size.x == 0) {
+                            bounds = chunkBounds;
+                        }
+                        else {
+                            bounds.Encapsulate(chunkBounds.min);
+                            bounds.Encapsulate(chunkBounds.max);
+                        }
                     }
-                    else {
-                        bounds.Encapsulate(chunkBounds.min);
-                        bounds.Encapsulate(chunkBounds.max);
-                    }
+                    
                 }
             }
             return bounds.center;

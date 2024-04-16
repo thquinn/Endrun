@@ -28,7 +28,11 @@ namespace Assets.Code.Model.GameEvents {
             }
         }
         public void Trigger(GameEvent e) {
-            // HACK: Putting MonoBehaviours in here creates a big problem when it gets DeepClone()d.
+            if (GameStateManagerScript.instance.gameState?.gameEventManager == null) {
+                // No events before the state is done constructing.
+                return;
+            }
+            // HACK: Putting MonoBehaviours in here creates a big problem when it gets DeepClone()'d.
             // Instead, let's just call them dumb-style.
             if (GameStateManagerScript.instance.gameState.gameEventManager == this) {
                 if (GameStateManagerScript.UNDO_HISTORY_EVENT_TYPES.Contains(e.type)) {
@@ -98,6 +102,6 @@ namespace Assets.Code.Model.GameEvents {
         }
     }
     public enum GameEventType {
-        None, BeforeMove, BeforeResolveSkill, Damage, MovementSegment, TurnStart
+        None, BeforeMove, BeforeResolveSkill, Damage, LevelEnd, LevelStart, ManaOverflow, MovementSegment, TurnStart, UnitDied
     }
 }

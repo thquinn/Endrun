@@ -70,7 +70,7 @@ public class UnitScript : TooltipBehavior
             turnActionEmpty.SetActive(unit.actions <= 0);
         }
         // Enemy stuff.
-        bool showSpinner = isActive && !unit.playerControlled && !gameStateManager.animationManager.IsAnythingAnimating();
+        bool showSpinner = isActive && !unit.playerControlled && !gameStateManager.animationManager.IsAnythingAnimating() && !unit.gameState.IsGameOver();
         Color c = turnSpinnerRenderer.color;
         c.a = Mathf.SmoothDamp(c.a, showSpinner ? 1 : 0, ref vTurnSpinnerAlpha, .1f);
         turnSpinnerRenderer.color = c;

@@ -9,13 +9,6 @@ using UnityEngine;
 namespace Assets.Code.Model
 {
     public class GameState {
-        static UnitTemplate TEMPLATE_SUMMONER = new UnitTemplate("Summoner", "summoner", 7, 8, 0);
-        static UnitTemplate TEMPLATE_BRUTE = new UnitTemplate("Brute", "brute", 9, 7, 3, new SkillMeleeAttack(1), new SkillOpportunist(1));
-        static UnitTemplate TEMPLATE_MEDIC = new UnitTemplate("Medic", "medic", 6, 9, 3, new SkillHealingTouch(1));
-        static UnitTemplate TEMPLATE_MERIDIAN = new UnitTemplate("Meridian", "meridian", 5, 7, 3, new SkillAccelerate(1), new SkillTeleport(1));
-        static UnitTemplate TEMPLATE_SNIPER = new UnitTemplate("Sniper", "sniper", 5, 10, 3, new SkillArrow(1));
-        static UnitTemplate TEMPLATE_WARRIOR = new UnitTemplate("Warrior", "warrior", 8, 10, 3, new SkillMeleeAttack(2), new SkillSuplex(1));
-
         public GameEventManager gameEventManager;
         public Random.State enemyAIState;
         public List<UnitTemplate> summonTemplates;
@@ -24,23 +17,21 @@ namespace Assets.Code.Model
         public List<Unit> units;
         public int maxFocus;
         public Vector2Int mana;
+        public List<ManaCrystal> manaCrystals;
         public SkillDecision skillDecision;
 
         public GameState() {
             gameEventManager = new GameEventManager();
             enemyAIState = Random.state;
             summonTemplates = new List<UnitTemplate>();
-            summonTemplates.AddRange(new UnitTemplate[] { TEMPLATE_BRUTE, TEMPLATE_MEDIC, TEMPLATE_MERIDIAN, TEMPLATE_SNIPER, TEMPLATE_WARRIOR });
+            summonTemplates = Balance.GetStartingTemplates();
             chunks = new List<Chunk>();
-            chunks.Add(new Chunk(0, false, false));
-            AddChunk();
-            chunkTicks = Constants.BALANCE_CHUNK_TIMER;
             units = new List<Unit>();
+            manaCrystals = new List<ManaCrystal>();
+            Balance.Initialize(this);
+            chunkTicks = Constants.BALANCE_CHUNK_TIMER;
             maxFocus = 10;
             mana = new Vector2Int(10, 10);
-            AddUnit(new Unit(this, UnitControlType.Summoner, new Vector3(0, 2.5f, -8), TEMPLATE_SUMMONER));
-            AddUnit(new Unit(this, UnitControlType.Ally, new Vector3(0, -1.5f, 8), TEMPLATE_MEDIC));
-            AddUnit(new Unit(this, UnitControlType.Enemy, new Vector3(4, -1.5f, 8), TEMPLATE_BRUTE));
         }
         public void AddUnit(Unit unit) {
             if (units.Count == 0) {
@@ -60,13 +51,13 @@ namespace Assets.Code.Model
         }
         public void RemoveDeadUnits() {
             for (int i = units.Count - 1; i >= 0; i--) {
-                if (units[i].dead) {
+                if (units[i].dead && !units[i].isSummoner) {
                     units.RemoveAt(i);
                 }
             }
         }
         public Unit GetActiveUnit() {
-            return units.Count == 0 ? null : units[0];
+            return IsGameOver() ? null : units[0];
         }
         public void SortUnits() {
             units.Sort((u1, u2) => u1.ticksUntilTurn - u2.ticksUntilTurn);
@@ -79,21 +70,51 @@ namespace Assets.Code.Model
             }
             chunkTicks -= tickDecrement;
             if (chunkTicks <= 0) {
+                gameEventManager.Trigger(new GameEvent() {
+                    type = GameEventType.LevelEnd,
+                });
                 AddChunk();
             }
         }
-        void AddChunk() {
+        public void AddChunk() {
             if (chunks.Count >= 2) {
                 chunks.RemoveAt(0);
                 level++;
             }
             int chunkIndex = GameStateManagerScript.instance.GetRandomChunkIndex();
             chunks.Add(new Chunk(chunkIndex, Random.value < .5f, Random.value < .5f));
+            RemoveOldMana();
             chunkTicks = Constants.BALANCE_CHUNK_TIMER;
+            gameEventManager.Trigger(new GameEvent() {
+                type = GameEventType.LevelStart,
+            });
+        }
+        void RemoveOldMana() {
+            for (int i = manaCrystals.Count - 1; i >= 0; i--) {
+                if (manaCrystals[i].IsOffChunks()) {
+                    manaCrystals.RemoveAt(i);
+                }
+            }
+        }
+
+        public void GainMana(int amount) {
+            int missing = mana.y - mana.x;
+            int overflow = Mathf.Max(0, amount - missing);
+            mana.x = Mathf.Min(mana.x + amount, mana.y);
+            if (overflow > 0) {
+                gameEventManager.Trigger(new GameEvent() {
+                    type = GameEventType.ManaOverflow,
+                    amount = overflow,
+                });
+            }
         }
 
         public int GetTotalAllyFocus() {
             return units.Where(u => u.playerControlled).Sum(u => u.focusCost);
+        }
+        public bool IsGameOver() {
+            Unit summoner = units.FirstOrDefault(u => u.isSummoner);
+            return summoner == null || summoner.dead;
         }
     }
 }

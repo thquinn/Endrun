@@ -40,13 +40,15 @@ namespace Assets.Code.Model.Skills.ActiveSkills
             return RANGE_BASE + (level - 1) * RANGE_INCREMENT;
         }
 
+        public override object[] GetTargets() {
+            return RangeUtil.GetVisibleAlliesWithinRadius(unit, GetRange());
+        }
         public override SkillDecision GetDecision() {
-            float range = GetRange();
             return new SkillDecision(this,
                                      "test",
                                      RangePreviewType.Ring,
-                                     range,
-                                     RangeUtil.GetVisibleAlliesWithinRadius(unit, range));
+                                     GetRange(),
+                                     GetTargets());
         }
         public override void Resolve(object choice) {
             base.Resolve(choice);

@@ -19,7 +19,7 @@ public class FollowerScript : MonoBehaviour
             transform.localPosition = Vector3.SmoothDamp(transform.localPosition, chunksCenter, ref vCenter, 1f);
         }
         // Level indicators.
-        string levelString = $"{GameStateManagerScript.instance.gameState.level + 1}F";
+        string levelString = $"LEVEL {GameStateManagerScript.instance.gameState.level + 1}";
         foreach (TextMeshPro tmp in tmpLevelIndicators) {
             tmp.text = levelString;
         }

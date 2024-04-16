@@ -30,12 +30,15 @@ namespace Assets.Code.Model.Skills.ActiveSkills
             return HEAL_BASE + (level - 1) * HEAL_INCREMENT;
         }
 
+        public override object[] GetTargets() {
+            return RangeUtil.GetVisibleAlliesWithinRadius(unit, RANGE).Where(u => u.hp.x < u.hp.y).ToArray();
+        }
         public override SkillDecision GetDecision() {
             return new SkillDecision(this,
                                      "test",
                                      RangePreviewType.Ring,
                                      RANGE,
-                                     RangeUtil.GetVisibleAlliesWithinRadius(unit, RANGE));
+                                     GetTargets());
         }
         public override void Resolve(object choice) {
             base.Resolve(choice);

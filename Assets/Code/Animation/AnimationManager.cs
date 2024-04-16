@@ -33,7 +33,7 @@ namespace Assets.Code.Animation
         }
 
         public bool IsAnythingAnimating() {
-            return animations.Count > 0;
+            return !GameStateManagerScript.IsGameOver() && animations.Count > 0;
         }
         public bool IsUnitAnimating(Unit unit) {
             return animations.Count > 0 && animations[0].IsUnitAnimating(unit);

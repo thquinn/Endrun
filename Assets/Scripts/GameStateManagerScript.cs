@@ -19,7 +19,7 @@ public class GameStateManagerScript : MonoBehaviour
     public static GameEventType[] UNDO_HISTORY_EVENT_TYPES = new GameEventType[] { GameEventType.BeforeMove, GameEventType.BeforeResolveSkill };
 
     public GameObject[] prefabChunks;
-    public GameObject prefabUnit;
+    public GameObject prefabUnit, prefabManaCrystal;
     public LayerMask layerMaskUnits;
 
     public NavMeshSurface navMeshSurface;
@@ -29,6 +29,7 @@ public class GameStateManagerScript : MonoBehaviour
     public Dictionary<Chunk, ChunkInfoScript> chunkScripts;
     public Dictionary<Unit, UnitScript> unitScripts;
     public Dictionary<Collider, Unit> unitColliders;
+    public Dictionary<ManaCrystal, GameObject> manaCrystalObjects;
     public AnimationManager animationManager;
     public Unit hoveredUnit;
 
@@ -42,6 +43,7 @@ public class GameStateManagerScript : MonoBehaviour
         chunkScripts = new Dictionary<Chunk, ChunkInfoScript>();
         unitScripts = new Dictionary<Unit, UnitScript>();
         unitColliders = new Dictionary<Collider, Unit>();
+        manaCrystalObjects = new Dictionary<ManaCrystal, GameObject>();
         SyncChunks();
         SyncUnits();
         animationManager = new AnimationManager();
@@ -54,19 +56,22 @@ public class GameStateManagerScript : MonoBehaviour
     void Update() {
         // DEBUG DEBUG DEBUG
         if (Input.GetKeyDown(KeyCode.F1)) {
-            gameState.chunkTicks += 100;
+            gameState.chunkTicks += 1000;
         }
         if (Input.GetKeyDown(KeyCode.F2)) {
-            gameState.chunks.Add(new Chunk(GetRandomChunkIndex(), Random.value < .5f, Random.value < .5f));
+            gameState.AddChunk();
         }
         // END DEBUG
         SyncChunks();
         SyncUnits();
-        SkillDecision();
-        EnemyActs();
-        animationManager.Update();
+        SyncMana();
+        if (!gameState.IsGameOver()) {
+            SkillDecision();
+            EnemyActs();
+            animationManager.Update();
+        }
     }
-    void SyncChunks(bool kill = true) {
+    void SyncChunks(bool undo = false) {
         bool changes = false;
         for (int i = 0; i < gameState.chunks.Count; i++) {
             Chunk chunk = gameState.chunks[i];
@@ -100,10 +105,11 @@ public class GameStateManagerScript : MonoBehaviour
                 unitScript.ToggleCollider(false);
             }
             navMeshSurface.BuildNavMesh();
-            if (kill) {
+            if (undo) {
                 KillOffMeshUnits();
                 undoHistory.Clear();
             }
+            Balance.InitializeNewChunk(gameState);
             ToggleColliders();
         }
     }
@@ -129,6 +135,21 @@ public class GameStateManagerScript : MonoBehaviour
         }
         if (changes) {
             ToggleColliders();
+        }
+    }
+    void SyncMana() {
+        foreach (ManaCrystal manaCrystal in gameState.manaCrystals) {
+            if (!manaCrystalObjects.ContainsKey(manaCrystal)) {
+                manaCrystalObjects[manaCrystal] = Instantiate(prefabManaCrystal);
+            }
+        }
+        var nulls = manaCrystalObjects.Keys.Where(m => !gameState.manaCrystals.Contains(m)).ToArray();
+        foreach (ManaCrystal manaCrystal in nulls) {
+            Destroy(manaCrystalObjects[manaCrystal].gameObject);
+            manaCrystalObjects.Remove(manaCrystal);
+        }
+        foreach (var kvp in manaCrystalObjects) {
+            kvp.Value.transform.position = kvp.Key.position;
         }
     }
     void EnemyActs() {
@@ -171,6 +192,11 @@ public class GameStateManagerScript : MonoBehaviour
     public Unit GetActiveUnit() {
         return gameState.GetActiveUnit();
     }
+    public static bool IsGameOver() {
+        return instance.gameState.IsGameOver();
+    }
+
+
     public int GetRandomChunkIndex() {
         float sum = chunkWeights.Sum();
         float selector = Random.Range(0, sum);
@@ -193,14 +219,14 @@ public class GameStateManagerScript : MonoBehaviour
     public void Undo() {
         if (undoHistory.Count == 0) return;
         gameState = undoHistory.Pop();
-        SyncChunks(false);
+        SyncChunks(true);
         SyncUnits();
         ToggleColliders();
     }
 
     // "Dumb-style" events.
     public void HandleUndoCheckpointEvent(GameEvent e) {
-        if (GetActiveUnit().playerControlled) {
+        if (GetActiveUnit()?.playerControlled == true) {
             undoHistory.Push(gameState.DeepClone());
         }
     }

@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 namespace Assets.Code.Model.Skills
 {
     public class FakeSkillUndo : ActiveSkill {
-        public FakeSkillUndo(Unit unit) : base(-1) {
+        public FakeSkillUndo() : base(-1) {
             name = "Undo";
-            this.unit = unit;
         }
         public FakeSkillUndo(FakeSkillUndo other) : base(other) { }
         public override Skill Clone() {

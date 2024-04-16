@@ -46,8 +46,8 @@ namespace Assets.Code.Model
             name = template.name;
             iconID = template.iconID;
             focusCost = template.focusCost;
-            hp = template.hp;
-            movement = template.movement;
+            hp = new Vector2Int(template.hp, template.hp);
+            movement = new Vector2(template.movement, template.movement); ;
             actions = 1;
         }
 
@@ -91,10 +91,12 @@ namespace Assets.Code.Model
             movement.x -= length;
             GameStateManagerScript.instance.EnqueueAnimation(new MoveAnimation(this, path, length));
         }
-        public void GetAttacked(Unit target, int amount) {
+        public void Attack(Unit target, int amount) {
+            if (dead) return;
             target.Damage(amount);
         }
         public void Damage(int amount) {
+            if (dead) return;
             amount = Mathf.Min(hp.x, amount);
             hp.x -= amount;
             gameState.gameEventManager.Trigger(new GameEvent() {
@@ -108,10 +110,20 @@ namespace Assets.Code.Model
             }
         }
         public void Die() {
+            if (dead) return;
             dead = true;
+            if (!playerControlled) {
+                gameState.manaCrystals.Add(new ManaCrystal(gameState, position));
+                // TODO: What if it died in midair or something?
+            }
+            gameState.gameEventManager.Trigger(new GameEvent() {
+                type = GameEventType.UnitDied,
+                unitSource = this,
+            });
             gameState.gameEventManager.Unregister(this);
         }
         public void Heal(int amount) {
+            if (dead) return;
             amount = Mathf.Min(hp.y - hp.x, amount);
             hp.x += amount;
         }

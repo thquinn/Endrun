@@ -41,12 +41,15 @@ namespace Assets.Code.Model.Skills.ActiveSkills
             return THROW_DISTANCE_BASE + (level - 1) * THROW_DISTANCE_INCREMENT;
         }
 
+        public override object[] GetTargets() {
+            return RangeUtil.GetVisibleEnemiesWithinRadius(unit, RANGE);
+        }
         public override SkillDecision GetDecision() {
             return new SkillDecision(this,
                                      "test",
                                      RangePreviewType.Ring,
                                      RANGE,
-                                     RangeUtil.GetVisibleEnemiesWithinRadius(unit, RANGE));
+                                     GetTargets());
         }
         public override void Resolve(object choice) {
             base.Resolve(choice);
@@ -58,7 +61,7 @@ namespace Assets.Code.Model.Skills.ActiveSkills
             if (hit.hit) {
                 GameStateManagerScript.instance.EnqueueAnimation(new ThrowUnitAnimation(target, target.position, placementPosition, 4));
             }
-            unit.GetAttacked(target, GetDamage());
+            unit.Attack(target, GetDamage());
             AfterResolve();
         }
     }

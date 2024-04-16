@@ -16,6 +16,10 @@ namespace Assets.Code
             return Vector3.Distance(a, b) <= Constants.COMBAT_MELEE_RADIUS;
         }
 
+        public static Unit[] GetVisibleOtherUnitsWithinRadius(Unit unit, float radius) {
+            return GetOther(unit).Where(u => unit.SphericalDistanceTo(u) <= radius)
+                                 .Where(u => !IsTerrainBetweenUnits(unit, u)).ToArray();
+        }
         public static Unit[] GetVisibleEnemiesWithinRadius(Unit unit, float radius) {
             return GetEnemies(unit).Where(u => unit.SphericalDistanceTo(u) <= radius)
                                    .Where(u => !IsTerrainBetweenUnits(unit, u)).ToArray();
@@ -27,6 +31,9 @@ namespace Assets.Code
         public static Unit[] GetVisibleEnemiesWithinCone(Unit unit, float radius) {
             return GetEnemies(unit).Where(u => unit.CanShootWithinConicalDistance(u, radius))
                                    .Where(u => !IsTerrainBetweenUnits(unit, u)).ToArray();
+        }
+        public static IEnumerable<Unit> GetOther(Unit unit) {
+            return unit.gameState.units.Where(u => u != unit);
         }
         public static IEnumerable<Unit> GetEnemies(Unit unit) {
             return unit.gameState.units.Where(u => u.playerControlled != unit.playerControlled);

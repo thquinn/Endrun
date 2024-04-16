@@ -3228,7 +3228,11 @@ MonoBehaviour:
   - {fileID: 362580674968314404, guid: fa52f80314a66cc4c89ad9dd155da1e2, type: 3}
   - {fileID: 7378728588995217443, guid: 81a50fc54a380214c9ed2a082aa12ecf, type: 3}
   - {fileID: 3983519178779838640, guid: b4c3a9d9dcc3f41459293c035250145e, type: 3}
+  - {fileID: 1746853899194222151, guid: 32e28cca2c5ad17419c91d7a4a567b1a, type: 3}
+  - {fileID: 4972727679479313212, guid: e3ba189d9e1557441bd6ee2e8b60b6f7, type: 3}
+  - {fileID: 500954848896833322, guid: 1c2cddfcad2eeaa4e91ec6eb19f57837, type: 3}
   prefabUnit: {fileID: 5002901008983533561, guid: 5bdfb77681cd5fe4f9d4bca23aec1c62, type: 3}
+  prefabManaCrystal: {fileID: 1298999153555305721, guid: 62182bb7d9ae48644954da2df0b95770, type: 3}
   layerMaskUnits:
     serializedVersion: 2
     m_Bits: 64

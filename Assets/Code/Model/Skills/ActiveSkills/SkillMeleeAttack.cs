@@ -30,17 +30,20 @@ namespace Assets.Code.Model.Skills.ActiveSkills
             return DAMAGE_BASE + (level - 1) * DAMAGE_INCREMENT;
         }
 
+        public override object[] GetTargets() {
+            return RangeUtil.GetVisibleEnemiesWithinRadius(unit, RANGE);
+        }
         public override SkillDecision GetDecision() {
             return new SkillDecision(this,
                                      "test",
                                      RangePreviewType.Ring,
                                      RANGE,
-                                     RangeUtil.GetVisibleEnemiesWithinRadius(unit, RANGE));
+                                     GetTargets());
         }
         public override void Resolve(object choice) {
             base.Resolve(choice);
             Unit target = choice as Unit;
-            unit.GetAttacked(target, GetDamage());
+            unit.Attack(target, GetDamage());
             AfterResolve();
         }
     }

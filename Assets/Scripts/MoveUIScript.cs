@@ -12,6 +12,7 @@ public class MoveUIScript : MonoBehaviour
 {
     static Vector2Int[] NEIGHBOR_DIRECTIONS = new Vector2Int[] { new Vector2Int(-1, -1), new Vector2Int(0, -1), new Vector2Int(1, -1), new Vector2Int(-1, 0), new Vector2Int(1, 0), new Vector2Int(1, -1), new Vector2Int(1, 0), new Vector2Int(1, 1) };
     static float GRID_SIZE = .33f;
+    static float AGENT_LOCATION_SAMPLE_DISTANCE = .2f;
 
     public static bool disableMouseOneFrame;
 
@@ -41,7 +42,11 @@ public class MoveUIScript : MonoBehaviour
         Dictionary<Vector2Int, Vector3> coorsPathable = new Dictionary<Vector2Int, Vector3>();
         Queue<Vector2Int> queue = new Queue<Vector2Int>();
         coorsSeen.Add(Vector2Int.zero);
-        coorsPathable.Add(Vector2Int.zero, agent.transform.position);
+        NavMeshHit navMeshHit;
+        if (!NavMesh.SamplePosition(agent.transform.position, out navMeshHit, AGENT_LOCATION_SAMPLE_DISTANCE, NavMesh.AllAreas)) {
+            return;
+        }
+        coorsPathable.Add(Vector2Int.zero, navMeshHit.position);
         queue.Enqueue(Vector2Int.zero);
         NavMeshPath path = new NavMeshPath();
         while (queue.Count > 0) {
@@ -53,7 +58,6 @@ public class MoveUIScript : MonoBehaviour
                 Vector3 worldSpace = agent.transform.position;
                 worldSpace.x += neighbor.x * GRID_SIZE;
                 worldSpace.z += neighbor.y * GRID_SIZE;
-                NavMeshHit navMeshHit;
                 NavMesh.SamplePosition(worldSpace, out navMeshHit, 3f, NavMesh.AllAreas);
                 if (!navMeshHit.hit) continue;
                 Vector2 xzDistance = new Vector2(worldSpace.x - navMeshHit.position.x, worldSpace.z - navMeshHit.position.z);
@@ -165,33 +169,39 @@ public class MoveUIScript : MonoBehaviour
 
         Vector3 target = Util.GetMouseCollisionPoint(layerMaskChunks);
         NavMeshPath path = null;
-        float pathLength = 0;
+        float pathLength = float.MaxValue;
         if (target == Vector3.zero) {
             ClearPathPreview();
         } else {
+            agent.nextPosition = unit.position;
             path = new NavMeshPath();
-            NavMesh.CalculatePath(unit.position, target, new NavMeshQueryFilter() {
-                agentTypeID = agent.agentTypeID,
-                areaMask = NavMesh.AllAreas,
-            }, path);
-            pathLength = NavMeshUtil.GetPathLength(path);
-            if (pathLength > unit.movement.x || path.corners.Length < 2) {
-                ClearPathPreview();
-            } else {
-                Vector3[] displayPath = path.corners.Clone() as Vector3[];
-                float displayRadius = Mathf.Min(Vector3.Distance(displayPath[0], displayPath[1]), 1f);
-                displayPath[0] = Vector3.MoveTowards(displayPath[0], displayPath[1], displayRadius);
-                lineRenderer.positionCount = displayPath.Length;
-                lineRenderer.SetPositions(displayPath);
-                Vector3 pathEnd = displayPath[displayPath.Length - 1];
-                pathFinish.SetActive(true);
-                pathFinish.transform.position = pathEnd;
-                pathCircle.SetActive(true);
-                pathCircle.transform.rotation = Quaternion.LookRotation(NavMeshUtil.GetChunksNormal(pathEnd));
-                pathCircle.transform.localScale = new Vector3(agent.radius * 2, agent.radius * 2, 1);
+            NavMeshHit navMeshHit;
+            if (NavMesh.SamplePosition(unit.position, out navMeshHit, AGENT_LOCATION_SAMPLE_DISTANCE, NavMesh.AllAreas)) {
+                NavMesh.CalculatePath(navMeshHit.position, target, new NavMeshQueryFilter()
+                {
+                    agentTypeID = agent.agentTypeID,
+                    areaMask = NavMesh.AllAreas,
+                }, path);
+                pathLength = NavMeshUtil.GetPathLength(path);
+                if (pathLength > unit.movement.x || path.corners.Length < 2) {
+                    ClearPathPreview();
+                }
+                else {
+                    Vector3[] displayPath = path.corners.Clone() as Vector3[];
+                    float displayRadius = Mathf.Min(Vector3.Distance(displayPath[0], displayPath[1]), 1f);
+                    displayPath[0] = Vector3.MoveTowards(displayPath[0], displayPath[1], displayRadius);
+                    lineRenderer.positionCount = displayPath.Length;
+                    lineRenderer.SetPositions(displayPath);
+                    Vector3 pathEnd = displayPath[displayPath.Length - 1];
+                    pathFinish.SetActive(true);
+                    pathFinish.transform.position = pathEnd;
+                    pathCircle.SetActive(true);
+                    pathCircle.transform.rotation = Quaternion.LookRotation(NavMeshUtil.GetChunksNormal(pathEnd));
+                    pathCircle.transform.localScale = new Vector3(agent.radius * 2, agent.radius * 2, 1);
+                }
             }
         }
-        if (path != null && click && pathLength <= unit.movement.x) {
+        if (path?.status == NavMeshPathStatus.PathComplete && click && pathLength <= unit.movement.x) {
             unit.Move(path);
         }
     }
