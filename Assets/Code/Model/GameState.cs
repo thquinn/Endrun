@@ -19,11 +19,11 @@ namespace Assets.Code.Model
         public Vector2Int mana;
         public List<ManaCrystal> manaCrystals;
         public SkillDecision skillDecision;
+        public PlayerUpgrade[] playerUpgradeDecision;
 
         public GameState() {
             gameEventManager = new GameEventManager();
             enemyAIState = Random.state;
-            summonTemplates = new List<UnitTemplate>();
             summonTemplates = Balance.GetStartingTemplates();
             chunks = new List<Chunk>();
             units = new List<Unit>();
@@ -80,6 +80,7 @@ namespace Assets.Code.Model
             if (chunks.Count >= 2) {
                 chunks.RemoveAt(0);
                 level++;
+                playerUpgradeDecision = new PlayerUpgrade[] { new PlayerUpgrade(this), new PlayerUpgrade(this) };
             }
             int chunkIndex = GameStateManagerScript.instance.GetRandomChunkIndex();
             chunks.Add(new Chunk(chunkIndex, Random.value < .5f, Random.value < .5f));

@@ -56,7 +56,7 @@ namespace Assets.Code.Model
                     skillUpgrade = Util.ChooseRandom(template.skills);
                 } else {
                     newSkill = Util.ChooseRandom(UPGRADE_SKILLS.Where(s => !template.skills.Any(s2 => s.name == s2.name)).ToArray()).Clone();
-                    newSkill.level = template.skills.Count == 0 ? 0 : template.skills.Min(s => s.level) + 1;
+                    newSkill.level = template.skills.Count == 0 ? 0 : template.skills.Min(s => s.level);
                 }
             }
         }
@@ -69,10 +69,10 @@ namespace Assets.Code.Model
         }
         UnitTemplate ApplyInternal(UnitTemplate templateCopy) {
             if (stat == UnitTemplateUpgradeStat.HP) {
-                templateCopy.hp++;
+                templateCopy.hp += Constants.UPGRADE_UNIT_HP;
             }
             else if (stat == UnitTemplateUpgradeStat.Movement) {
-                templateCopy.movement += 1.5f;
+                templateCopy.movement += Constants.UPGRADE_UNIT_MOVEMENT;
             }
             else if (skillUpgrade != null) {
                 skillUpgrade.level++;
@@ -81,7 +81,7 @@ namespace Assets.Code.Model
                 templateCopy.skills.Add(newSkill);
             }
             templateCopy.timesUpgraded++;
-            if (templateCopy.timesUpgraded % Constants.UNIT_UPGRADES_PER_FOCUS_COST == 0) {
+            if (templateCopy.timesUpgraded % Constants.UPGRADES_PER_FOCUS_COST_INCREASE == 0) {
                 templateCopy.focusCost++;
             }
             return templateCopy;

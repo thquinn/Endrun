@@ -6,9 +6,14 @@ using UnityEngine;
 
 public class FollowerScript : MonoBehaviour
 {
+    static float CHEVRON_PERIOD = 3f;
+
+    public GameObject prefabChevron;
+
     public TextMeshPro[] tmpLevelIndicators;
 
     Vector3 vCenter;
+    float chevronTimer;
 
     void Update() {
         // Move.
@@ -22,6 +27,13 @@ public class FollowerScript : MonoBehaviour
         string levelString = $"LEVEL {GameStateManagerScript.instance.gameState.level + 1}";
         foreach (TextMeshPro tmp in tmpLevelIndicators) {
             tmp.text = levelString;
+        }
+        // Chevrons.
+        chevronTimer += Time.deltaTime;
+        if (chevronTimer >= CHEVRON_PERIOD) {
+            Instantiate(prefabChevron).transform.position = transform.position + new Vector3(-15, -2, -15);
+            Instantiate(prefabChevron).transform.position = transform.position + new Vector3(15, -2, -15);
+            chevronTimer -= CHEVRON_PERIOD;
         }
     }
 }

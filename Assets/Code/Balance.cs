@@ -20,7 +20,7 @@ namespace Assets.Code
         static UnitTemplate TEMPLATE_SNIPER = new UnitTemplate("Sniper", "sniper", 5, 10, 3, new SkillArrow(1));
         static UnitTemplate TEMPLATE_VAMPIRE = new UnitTemplate("Vampire", "vampire", 5, 5, 4, new SkillMeleeAttack(1), new SkillDrink(1));
         static UnitTemplate TEMPLATE_WARRIOR = new UnitTemplate("Warrior", "warrior", 8, 10, 3, new SkillMeleeAttack(2), new SkillSuplex(1));
-        static UnitTemplate[] PLAYER_SPECIAL_TEMPLATES = new UnitTemplate[] { TEMPLATE_BOMB, TEMPLATE_BRUTE, TEMPLATE_CRYSTAL, TEMPLATE_MEDIC, TEMPLATE_MERIDIAN, TEMPLATE_VAMPIRE };
+        public static UnitTemplate[] PLAYER_SPECIAL_TEMPLATES = new UnitTemplate[] { TEMPLATE_BOMB, TEMPLATE_BRUTE, TEMPLATE_CRYSTAL, TEMPLATE_MEDIC, TEMPLATE_MERIDIAN, TEMPLATE_VAMPIRE };
         static Dictionary<UnitTemplate, float> ENEMY_TEMPLATE_WEIGHTS = new Dictionary<UnitTemplate, float>() {
             { TEMPLATE_BOMB, .5f },
             { TEMPLATE_BRUTE, .75f },
@@ -56,7 +56,7 @@ namespace Assets.Code
                 UnitTemplateUpgrade upgrade = nonNewSkill ?? upgrades[0];
                 upgrade.Apply();
             }
-            float enemyBudget = 3 + 2 * gameState.level;
+            float enemyBudget = 2 + 1.5f * gameState.level;
             for (int i = 0; i < 100 && enemyBudget > 0 && spawnPoints.Count > 0; i++) {
                 UnitTemplate enemyTemplate = Util.ChooseRandom(enemyTemplates);
                 float cost = 1f + enemyTemplate.timesUpgraded * .33f;
@@ -113,5 +113,71 @@ namespace Assets.Code
             }
             return enemyTemplates.ToArray();
         }
+    }
+
+    public class PlayerUpgrade {
+        public PlayerUpgradeStat stat;
+        public UnitTemplate templateNew;
+        public UnitTemplateUpgrade templateUpgrade;
+
+        public PlayerUpgrade(GameState state) {
+            float typeSelector = Random.value;
+            if (typeSelector < .2f) {
+                stat = PlayerUpgradeStat.HP;
+            }
+            else if (typeSelector < .3f) {
+                stat = PlayerUpgradeStat.Movement;
+            }
+            else {
+                float upgradeTemplateChance = Mathf.Sqrt(state.summonTemplates.Count) / 2f;
+                if (Random.value < upgradeTemplateChance) {
+                    templateUpgrade = new UnitTemplateUpgrade(Util.ChooseRandom(state.summonTemplates));
+                }
+                else {
+                    templateNew = Util.ChooseRandom(Balance.PLAYER_SPECIAL_TEMPLATES.Where(t => !state.summonTemplates.Any(t2 => t.name == t2.name)).ToArray());
+                    int upgrades = state.summonTemplates.Min(t => t.timesUpgraded);
+                    for (int i = 0; i < upgrades; i++) {
+                        new UnitTemplateUpgrade(templateNew).Apply();
+                    }
+                }
+            }
+        }
+        public void Apply(GameState state) {
+            if (stat == PlayerUpgradeStat.HP) {
+                state.units.First(u => u.isSummoner).GainMaxHP(Constants.UPGRADE_UNIT_HP);
+            } else if (stat == PlayerUpgradeStat.Movement) {
+                state.units.First(u => u.isSummoner).movement.y += Constants.UPGRADE_UNIT_MOVEMENT;
+            } else if (stat == PlayerUpgradeStat.Focus) {
+                state.maxFocus += Constants.UPGRADE_MAX_FOCUS;
+            } else if (templateNew != null) {
+                state.summonTemplates.Add(templateNew);
+            } else if (templateUpgrade != null) {
+                templateUpgrade.Apply();
+            }
+        }
+        public override string ToString() {
+            if (stat == PlayerUpgradeStat.HP) {
+                return $"Your summoner gains {Constants.UPGRADE_UNIT_HP} max HP.";
+            }
+            else if (stat == PlayerUpgradeStat.Movement) {
+                return $"Your summoner gets {Constants.UPGRADE_UNIT_MOVEMENT}m move.";
+            }
+            else if (stat == PlayerUpgradeStat.Focus) {
+                return $"Your summoner gains {Constants.UPGRADE_MAX_FOCUS} more focus.";
+            }
+            else if (templateNew != null) {
+                Unit templatedUnit = new Unit(GameStateManagerScript.instance.gameState, UnitControlType.Ally, Vector3.zero, templateNew);
+                return $"Gain a new summon:\n\n{templatedUnit.GetTooltip()}";
+            }
+            else if (templateUpgrade != null) {
+                Unit after = new Unit(GameStateManagerScript.instance.gameState, UnitControlType.Ally, Vector3.zero, templateUpgrade.Preview());
+                return $"Upgrade a summon:\n\n{after.GetTooltip()}";
+            }
+            return "???";
+        }
+    }
+
+    public enum PlayerUpgradeStat {
+        None, HP, Movement, Focus
     }
 }

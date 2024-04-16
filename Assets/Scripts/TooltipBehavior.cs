@@ -10,4 +10,8 @@ public abstract class TooltipBehavior : MonoBehaviour
 
 public class Tooltip {
     public string header, content, upperRight;
+
+    public override string ToString() {
+        return $"<b>{header}</b>\n\n{content}";
+    }
 }

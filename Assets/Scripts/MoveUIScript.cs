@@ -12,7 +12,7 @@ public class MoveUIScript : MonoBehaviour
 {
     static Vector2Int[] NEIGHBOR_DIRECTIONS = new Vector2Int[] { new Vector2Int(-1, -1), new Vector2Int(0, -1), new Vector2Int(1, -1), new Vector2Int(-1, 0), new Vector2Int(1, 0), new Vector2Int(1, -1), new Vector2Int(1, 0), new Vector2Int(1, 1) };
     static float GRID_SIZE = .33f;
-    static float AGENT_LOCATION_SAMPLE_DISTANCE = .2f;
+    static float AGENT_LOCATION_SAMPLE_DISTANCE = .5f;
 
     public static bool disableMouseOneFrame;
 

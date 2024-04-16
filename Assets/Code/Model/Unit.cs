@@ -127,6 +127,11 @@ namespace Assets.Code.Model
             amount = Mathf.Min(hp.y - hp.x, amount);
             hp.x += amount;
         }
+        public void GainMaxHP(int amount) {
+            if (dead) return;
+            hp.y += amount;
+            Heal(amount);
+        }
         public void EndTurn() {
             SetTicks(accumulatedTicks + Constants.BALANCE_BASE_TURN_TICKS);
             movement.x = movement.y;

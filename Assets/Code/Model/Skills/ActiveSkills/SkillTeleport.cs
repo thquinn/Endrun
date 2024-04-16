@@ -20,7 +20,7 @@ namespace Assets.Code.Model.Skills.ActiveSkills
         }
 
         public override string GetDescription() {
-            return string.Format($"Instantly move to a spot ${GetRange()}m away.");
+            return string.Format($"Instantly move to a spot {GetRange()}m away.");
         }
         public override int GetTickCost() {
             return 5;

@@ -11,7 +11,10 @@ namespace Assets.Code
         public static int BALANCE_CHUNK_TIMER = 50; // # ticks before
         public static int BALANCE_BASE_TURN_TICKS = 10;
 
-        public static int UNIT_UPGRADES_PER_FOCUS_COST = 3;
+        public static int UPGRADES_PER_FOCUS_COST_INCREASE = 3;
+        public static int UPGRADE_UNIT_HP = 2;
+        public static float UPGRADE_UNIT_MOVEMENT = 1.5f;
+        public static int UPGRADE_MAX_FOCUS = 2;
 
         public static float SPAWN_MIN_DISTANCE_BETWEEN = 1.5f; // enemies, mana, etc must spawn at least this far apart
         public static int SPAWN_MANA_CRYSTALS_PER_LEVEL = 2;
