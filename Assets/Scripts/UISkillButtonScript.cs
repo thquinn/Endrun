@@ -60,18 +60,21 @@ public class UISkillButtonScript : TooltipBehavior
         c.a = Mathf.SmoothDamp(c.a, highlight ? backInitialAlpha : 0, ref vBackAlpha, .05f);
         back.color = c;
         if (Input.GetKeyDown(hotkey)) {
-            Activate();
-        }
-    }
-
-    void Activate() {
-        if (skill.type == SkillType.Active) {
-            skill.Activate();
+            OnClick();
         }
     }
 
     public void OnClick() {
-        Activate();
+        if (skill.type == SkillType.Passive || !skill.CanActivate()) {
+            SFXScript.SFXClickDisabled();
+        } else {
+            skill.Activate();
+            if (skill is FakeSkillUndo) {
+                SFXScript.SFXUndo();
+            } else {
+                SFXScript.SFXClick();
+            }
+        }
     }
     public void OnPointerEnter() {
         hovered = true;

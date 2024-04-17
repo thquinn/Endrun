@@ -35,6 +35,9 @@ namespace Assets.Code.Model.Skills.PassiveSkills
         public override string GetIconID() {
             return "spin";
         }
+        public override bool PlayerOnly() {
+            return true;
+        }
         public int GetMana() {
             return MANA_BASE + (level - 1) * MANA_INCREMENT;
         }

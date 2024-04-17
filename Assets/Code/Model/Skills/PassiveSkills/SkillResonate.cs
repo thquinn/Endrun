@@ -38,6 +38,9 @@ namespace Assets.Code.Model.Skills.PassiveSkills
         public override string GetIconID() {
             return "resonate";
         }
+        public override bool PlayerOnly() {
+            return true;
+        }
         public int GetMultiplier() {
             return MULTIPLIER_BASE + (level - 1) * MULTIPLIER_INCREMENT;
         }

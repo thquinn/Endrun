@@ -43,11 +43,13 @@ public class UIUpgradePanelScript : MonoBehaviour
     public void ClickSkip(BaseEventData e) {
         if ((e as PointerEventData).button != PointerEventData.InputButton.Left) return;
         GameStateManagerScript.instance.gameState.playerUpgradeDecision = null;
+        SFXScript.SFXClick();
     }
     void ClickIndex(int i) {
         GameState gameState = GameStateManagerScript.instance.gameState;
         if (gameState.playerUpgradeDecision == null) return;
         lastChoice[i].Apply(gameState);
         GameStateManagerScript.instance.gameState.playerUpgradeDecision = null;
+        SFXScript.SFXClick();
     }
 }

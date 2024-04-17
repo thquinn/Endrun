@@ -35,6 +35,7 @@ namespace Assets.Code.Model.Skills
         public virtual int GetTickCost() { return 0; }
         public virtual int GetManaCost() { return 0; }
         public virtual int GetActivationCooldown() { return 0; }
+        public virtual bool PlayerOnly() { return false; } // this skill is too hard for the enemy AI to use
         public virtual SkillDecision GetDecision() {
             Debug.Assert(type == SkillType.Active);
             return null;

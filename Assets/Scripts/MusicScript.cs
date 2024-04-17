@@ -4,12 +4,22 @@ using UnityEngine;
 
 public class MusicScript : MonoBehaviour
 {
+    public static MusicScript instance;
+
     public AudioSource[] bgms;
     public AudioSource currentBGM;
 
     bool stopped;
 
-    // Update is called once per frame
+    private void Start() {
+        if (instance != null) {
+            Destroy(gameObject);
+            return;
+        }
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
     void Update() {
         if (stopped) {
             return;

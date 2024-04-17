@@ -98,7 +98,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spriteRenderer: {fileID: 2341979500834892362}
-  maxAlpha: 0.1
+  maxAlpha: 0.2
   lifespan: 2
   smoothTime: 0.66
   velocity: 15

@@ -18,6 +18,7 @@ namespace Assets.Code.Model
         public int maxFocus;
         public Vector2Int mana;
         public List<ManaCrystal> manaCrystals;
+        public Unit summoner;
         public SkillDecision skillDecision;
         public PlayerUpgrade[] playerUpgradeDecision;
 
@@ -29,6 +30,7 @@ namespace Assets.Code.Model
             units = new List<Unit>();
             manaCrystals = new List<ManaCrystal>();
             Balance.Initialize(this);
+            summoner = units.First(u => u.isSummoner);
             chunkTicks = Constants.BALANCE_CHUNK_TIMER;
             maxFocus = 10;
             mana = new Vector2Int(10, 10);
@@ -80,6 +82,11 @@ namespace Assets.Code.Model
             if (chunks.Count >= 2) {
                 chunks.RemoveAt(0);
                 level++;
+                foreach (Unit unit in units) {
+                    if (unit.playerControlled) {
+                        unit.Heal(2);
+                    }
+                }
             }
             int chunkIndex = GameStateManagerScript.instance.GetRandomChunkIndex();
             chunks.Add(new Chunk(chunkIndex, Random.value < .5f, Random.value < .5f));

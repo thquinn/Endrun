@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Assets.Code.Model.Skills.ActiveSkills
 {
     public class SkillPulse : ActiveSkill {
-        static int DAMAGE_BASE = 1;
+        static int DAMAGE_BASE = 2;
         static int DAMAGE_INCREMENT = 1;
         static float RANGE_BASE = Constants.COMBAT_MELEE_RADIUS;
         static float RANGE_INCREMENT = 1;

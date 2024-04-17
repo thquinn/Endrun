@@ -23,7 +23,7 @@ namespace Assets.Code.Model.Skills.ActiveSkills
         }
 
         public override string GetDescription() {
-            return string.Format($"Attack an enemy {MIN_RANGE}-{GetMaxRange()}m away for {GetDamage()} damage.");
+            return string.Format($"Attack an enemy {MIN_RANGE} - {GetMaxRange()}m away for {GetDamage()} damage.");
         }
         public override string GetIconID() {
             return "arrow";

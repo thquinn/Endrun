@@ -8,7 +8,7 @@ using UnityEngine;
 namespace Assets.Code
 {
     public static class Constants {
-        public static int BALANCE_CHUNK_TIMER = 50; // # ticks before
+        public static int BALANCE_CHUNK_TIMER = 61; // # ticks before
         public static int BALANCE_BASE_TURN_TICKS = 10;
 
         public static int UPGRADES_PER_FOCUS_COST_INCREASE = 3;
@@ -26,5 +26,6 @@ namespace Assets.Code
 
         public static Color COLOR_ALLY = new Color(0.5019608f, 0.8156863f, 1f);
         public static Color COLOR_ENEMY = new Color(1f, 0.7490196f, 0.7490196f);
+        public static int UI_WARN_TICKS = 25; // if there are this many ticks or fewer left in the left, warn the player in the UI
     }
 }

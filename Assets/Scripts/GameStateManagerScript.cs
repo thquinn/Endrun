@@ -63,11 +63,20 @@ public class GameStateManagerScript : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F3)) {
             gameState.InitPlayerDecision();
         }
+        if (Input.GetKeyDown(KeyCode.F4 )) {
+            for (int i = gameState.units.Count - 1; i >= 0; i--) {
+                Unit unit = gameState.units[i];
+                if (!unit.isSummoner) {
+                    if (unit.hp.x > 1) unit.hp.x = 1;
+                    else unit.Damage(1);
+                }
+            }
+        }
         // END DEBUG
         SyncChunks();
         SyncUnits();
         SyncMana();
-        if (!gameState.IsGameOver()) {
+        if (!gameState.IsGameOver() && gameState.playerUpgradeDecision == null) {
             SkillDecision();
             EnemyActs();
             animationManager.Update();
@@ -82,7 +91,7 @@ public class GameStateManagerScript : MonoBehaviour
                 chunkScript.transform.localScale = new Vector3(chunkScript.transform.localScale.x * (chunk.flipX ? -1 : 1), 1, chunkScript.transform.localScale.z * (chunk.flipZ ? -1 : 1));
                 chunkScripts[chunk] = chunkScript;
                 changes = true;
-                if (i > 0) {
+                if (!undo && i > 0) {
                     // Set the new chunk's position properly.
                     Chunk previousChunk = gameState.chunks[i - 1];
                     ChunkInfoScript previousInfo = chunkScripts[previousChunk];
@@ -91,8 +100,9 @@ public class GameStateManagerScript : MonoBehaviour
                     chunk.position = previousChunk.position;
                     chunk.position.y += previousYOffset - thisYOffset;
                     chunk.position.z += 20;
-                    chunkScript.transform.position = chunk.position;
+                    
                 }
+                chunkScript.transform.position = chunk.position;
                 chunk.yOffsetBack = chunkScript.yOffsetBack;
                 chunk.yOffsetFront = chunkScript.yOffsetFront;
             }
@@ -112,8 +122,11 @@ public class GameStateManagerScript : MonoBehaviour
                 KillOffMeshUnits();
                 undoHistory.Clear();
                 Balance.InitializeNewChunk(gameState);
-                if (!gameState.IsGameOver() && gameState.level > 0) {
-                    gameState.InitPlayerDecision();
+                if (gameState.level > 0) {
+                    SFXScript.SFXLevelChange();
+                    if (!gameState.IsGameOver()) {
+                        gameState.InitPlayerDecision();
+                    }
                 }
             }
             ToggleColliders();
@@ -135,7 +148,7 @@ public class GameStateManagerScript : MonoBehaviour
         }
         var nulls = unitScripts.Keys.Where(u => !gameState.units.Contains(u)).ToArray();
         foreach (Unit unit in nulls) {
-            Destroy(unitScripts[unit].gameObject);
+            unitScripts[unit].Destroy();
             unitScripts.Remove(unit);
             changes = true;
         }
@@ -190,7 +203,7 @@ public class GameStateManagerScript : MonoBehaviour
             NavMeshHit navMeshHit;
             NavMesh.SamplePosition(unit.position, out navMeshHit, 3f, NavMesh.AllAreas);
             if (!navMeshHit.hit || Vector3.Distance(unit.position, navMeshHit.position) > .33f) {
-                unit.Die();
+                unit.dead = true; // not calling .Die here because triggers can cause units to damage and kill each other during this foreach
             }
         }
         gameState.RemoveDeadUnits();

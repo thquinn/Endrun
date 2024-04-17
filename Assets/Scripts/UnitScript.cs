@@ -8,25 +8,33 @@ using UnityEngine.AI;
 public class UnitScript : TooltipBehavior
 {
     public GameObject[] prefabUnitMeshes;
-    public GameObject prefabHoveringHPPip;
+    public GameObject prefabHoveringHPPip, prefabSummonerShine;
     public Material materialAlly, materialEnemy;
 
     public NavMeshAgent navMeshAgent;
     public NavMeshObstacle navMeshObstacle;
+    public AudioSource sfxHit, sfxMove;
 
     public Transform meshContainer, enemyHPSlider;
     public GameObject turnIndicator, turnActionFull, turnActionEmpty;
     public SpriteRenderer turnMovementRenderer, turnSpinnerRenderer;
+    public float summonerShinePeriod;
 
     public Unit unit;
     GameStateManagerScript gameStateManager;
     List<SpriteRenderer> enemyHPPipOutlines, enemyHPPipFills;
-    float vTurnSpinnerAlpha;
+    float summonerShineTimer;
+    float vTurnSpinnerAlpha, vSFXMove;
+    List<Vector3> lastPositions;
+    int lastHP;
+    bool destroyed;
 
     public void Init(Unit unit) {
         this.unit = unit;
         gameStateManager = GameStateManagerScript.instance;
+        lastPositions = new List<Vector3>();
         transform.localPosition = unit.position;
+        lastHP = unit.hp.x;
         // Mesh.
         if (meshContainer.childCount > 0) {
             Destroy(meshContainer.GetChild(0).gameObject);
@@ -56,8 +64,20 @@ public class UnitScript : TooltipBehavior
         turnSpinnerRenderer.color = c;
         Update();
     }
+    public void Destroy() {
+        foreach (Transform child in transform) {
+            child.gameObject.SetActive(child.tag == "SFX");
+        }
+        destroyed = true;
+    }
 
     void Update() {
+        if (destroyed ) {
+            if (!sfxHit.isPlaying) {
+                Destroy(gameObject);
+            }
+            return;
+        }
         meshContainer.gameObject.SetActive(!unit.isSummoner || !GameStateManagerScript.IsGameOver());
         transform.localPosition = unit.position;
         bool isActive = gameStateManager.GetActiveUnit() == unit;
@@ -77,6 +97,27 @@ public class UnitScript : TooltipBehavior
         turnSpinnerRenderer.color = c;
         turnSpinnerRenderer.transform.Rotate(0, 0, Time.deltaTime * -200);
         SyncEnemyHP();
+        // VFX.
+        if (unit.isSummoner) {
+            summonerShineTimer += Time.deltaTime;
+            if (summonerShineTimer > summonerShinePeriod) {
+                Instantiate(prefabSummonerShine, meshContainer.transform);
+                summonerShineTimer -= summonerShinePeriod;
+            }
+        }
+        // SFX.
+        lastPositions.Add(unit.position);
+        if (lastPositions.Count >= 3) {
+            float minDistance = Mathf.Min((lastPositions[0] - lastPositions[1]).magnitude, (lastPositions[1] - lastPositions[2]).magnitude); // check two delta to not play loud sound on teleport
+            float targetMoveVolume = minDistance / Time.deltaTime * .04f;
+            targetMoveVolume = Mathf.Min(targetMoveVolume, .5f);
+            sfxMove.volume = Mathf.SmoothDamp(sfxMove.volume, targetMoveVolume, ref vSFXMove, .05f);
+            lastPositions.RemoveAt(0);
+        }
+        if (unit.hp.x < lastHP) {
+            sfxHit.Play();
+            lastHP = unit.hp.x;
+        }
     }
 
     public void ToggleCollider(bool on) {

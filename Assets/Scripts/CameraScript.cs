@@ -8,19 +8,22 @@ public class CameraScript : MonoBehaviour
     Vector3 chunksCenter, vCenter;
     float distance;
     public float minDistance, maxDistance, sensitivity, scrollSensitivity, panSensitivity, rotateSensitivity;
-    float horizontalAngle = Mathf.PI * 2 / 3;
-    float verticalAngle = Mathf.PI / 6;
+    float horizontalAngle, verticalAngle;
     bool firstInput;
     Vector3 pan;
     bool revertPan;
     Vector3 vRevertPan;
 
+    private void Start() {
+        chunksCenter = new Vector3(0, 0, 10);
+        pan = new Vector3(-1, 0, -13.5f);
+        horizontalAngle = 4.2f;
+        verticalAngle = .5f;
+        distance = 16;
+        AudioListener.volume = 0.66f;
+    }
     void Update() {
-        if (chunksCenter == Vector3.zero) {
-            chunksCenter = Util.GetChunksCenter(gameObject.scene);
-        } else {
-            chunksCenter = Vector3.SmoothDamp(chunksCenter, Util.GetChunksCenter(gameObject.scene), ref vCenter, .5f);
-        }
+        chunksCenter = Vector3.SmoothDamp(chunksCenter, Util.GetChunksCenter(gameObject.scene), ref vCenter, .5f);
 
         // Input.
         distance *= Mathf.Pow(scrollSensitivity, Input.mouseScrollDelta.y);
@@ -42,6 +45,7 @@ public class CameraScript : MonoBehaviour
         pan += horizontalInput * transform.right * zoomedPanSensitivity * Time.deltaTime;
         Vector3 flatForward = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
         pan += verticalInput * flatForward * zoomedPanSensitivity * Time.deltaTime;
+        pan.y = 0;
         pan = Vector3.ClampMagnitude(pan, 20);
         if (!revertPan && Input.GetKey(KeyCode.Space)) {
             revertPan = true;

@@ -53,7 +53,7 @@ namespace Assets.Code.Model
         public UnitTemplateUpgradeStat stat;
         public Skill skillToUpgrade, skillNew;
 
-        public UnitTemplateUpgrade(UnitTemplate template) {
+        public UnitTemplateUpgrade(UnitTemplate template, bool player) {
             this.template = template;
             float typeSelector = Random.value;
             if (typeSelector < .2f) {
@@ -65,7 +65,9 @@ namespace Assets.Code.Model
                 if (Random.value < upgradeSkillChance) {
                     skillToUpgrade = Util.ChooseRandom(template.skills);
                 } else {
-                    skillNew = Util.ChooseRandom(UPGRADE_SKILLS.Where(s => !template.skills.Any(s2 => s.name == s2.name)).ToArray()).Clone();
+                    skillNew = Util.ChooseRandom(UPGRADE_SKILLS.Where(s => player || !s.PlayerOnly())
+                                                               .Where(s => !template.skills.Any(s2 => s.name == s2.name))
+                                                               .ToArray()).Clone();
                     skillNew.level = template.skills.Count == 0 ? 0 : template.skills.Min(s => s.level);
                 }
             }
@@ -98,6 +100,23 @@ namespace Assets.Code.Model
             }
         }
 
+        public override string ToString() {
+            if (stat == UnitTemplateUpgradeStat.HP) {
+                return $"+{Constants.UPGRADE_UNIT_HP} max HP";
+            }
+            else if (stat == UnitTemplateUpgradeStat.Movement) {
+                return $"+{Constants.UPGRADE_UNIT_MOVEMENT}m move";
+            }
+            else if (skillNew != null) {
+                return $"New skill:\n\n{skillNew}";
+            }
+            else if (skillToUpgrade != null) {
+                Skill after = skillToUpgrade.Clone();
+                after.level++;
+                return $"{skillToUpgrade}<line-height=50%>\n\n<align=\"center\">▼</align>\n\n</line-height>{after}";
+            }
+            return "???";
+        }
         public override bool Equals(object obj) {
             UnitTemplateUpgrade other = obj as UnitTemplateUpgrade;
             if (other == null) return false;
@@ -109,7 +128,7 @@ namespace Assets.Code.Model
         }
 
         static Skill[] UPGRADE_SKILLS = new Skill[] {
-            new SkillAccelerate(1), new SkillArrow(1), new SkillDrink(1), new SkillHealingTouch(1), new SkillPulse(1), new SkillSuplex(1), new SkillTeleport(1),
+            new SkillAccelerate(1), new SkillArrow(1), new SkillHealingTouch(1), new SkillPulse(1), new SkillSuplex(1), new SkillTeleport(1),
             new SkillBoom(1), new SkillOpportunist(1), new SkillResonate(1), new SkillSpin(1),
         };
     }

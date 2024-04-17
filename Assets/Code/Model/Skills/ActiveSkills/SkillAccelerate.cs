@@ -29,6 +29,9 @@ namespace Assets.Code.Model.Skills.ActiveSkills
         public override string GetIconID() {
             return "accelerate";
         }
+        public override bool PlayerOnly() {
+            return true;
+        }
 
         public int GetTicks() {
             return TICKS_BASE + (level - 1) * TICKS_INCREMENT;

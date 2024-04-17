@@ -28,6 +28,9 @@ namespace Assets.Code.Model.Skills.ActiveSkills
         public override string GetIconID() {
             return "teleport";
         }
+        public override bool PlayerOnly() {
+            return true;
+        }
 
         public int GetRange() {
             return RANGE_BASE + (level - 1) * RANGE_INCREMENT;

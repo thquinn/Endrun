@@ -29,6 +29,7 @@ namespace Assets.Code.Model
         public Vector2Int hp;
         public Vector2 movement;
         public int actions;
+        public int movesThisTurn;
 
         public Unit(GameState gameState, UnitControlType type, Vector3 position, UnitTemplate template) {
             this.gameState = gameState;
@@ -52,7 +53,9 @@ namespace Assets.Code.Model
         }
 
         public void StartTurn() {
-            
+            movement.x = movement.y;
+            movesThisTurn = 0;
+            actions = 1;
         }
 
         public float XZDistanceTo(Unit other) {
@@ -89,6 +92,7 @@ namespace Assets.Code.Model
                 length = movement.x;
             }
             movement.x -= length;
+            movesThisTurn++;
             GameStateManagerScript.instance.EnqueueAnimation(new MoveAnimation(this, path, length));
         }
         public void Attack(Unit target, int amount) {
@@ -121,6 +125,9 @@ namespace Assets.Code.Model
                 unitSource = this,
             });
             gameState.gameEventManager.Unregister(this);
+            foreach (Skill skill in skills) {
+                gameState.gameEventManager.Unregister(skill);
+            }
         }
         public void Heal(int amount) {
             if (dead) return;
@@ -134,8 +141,6 @@ namespace Assets.Code.Model
         }
         public void EndTurn() {
             SetTicks(accumulatedTicks + Constants.BALANCE_BASE_TURN_TICKS);
-            movement.x = movement.y;
-            actions = 1;
             accumulatedTicks = 0;
             gameState.EndTurn();
             gameState.gameEventManager.Trigger(new GameEvent() {

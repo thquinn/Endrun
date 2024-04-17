@@ -18,7 +18,7 @@ public class UIGameOverScript : MonoBehaviour
             "Press <b>R</b> to start again." :
             "<b>Undo</b> to right your wrongs, or press <b>R</b> to start again.";
         if (gameOver && Input.GetKeyDown(KeyCode.R)) {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            VFXFaderScript.instance.FadeOut();
         }
     }
 }

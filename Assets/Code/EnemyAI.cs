@@ -27,8 +27,11 @@ namespace Assets.Code
         static void Decide(Unit unit) {
             // Try to use skills.
             foreach (Skill skill in unit.skills) {
-                if (skill.CanActivate()) {
+                if (skill.CanActivate() && (skill as ActiveSkill).GetTargets().Length > 0) {
                     SkillDecision decision = skill.GetDecision();
+                    if (decision == null) {
+                        skill.Resolve(null);
+                    }
                     if (decision.choices.Count > 0) {
                         decision.MakeDecision(decision.choices.First());
                         return;
@@ -36,9 +39,10 @@ namespace Assets.Code
                 }
             }
             // Find a path to a point where a skill can be used.
-            if (unit.movement.x > 0) {
+            if (unit.movement.x > 0 && unit.movesThisTurn < 2) {
                 NavMeshAgent navMeshAgent = GameStateManagerScript.instance.unitScripts[unit].GetComponent<NavMeshAgent>();
                 NavMeshPath bestPath = null;
+                float closestDistance = float.MaxValue;
                 navMeshAgent.nextPosition = unit.position;
                 for (int i = 0; i < 1000; i++) {
                     NavMeshPath path = TryGetRandomMovePath(unit, navMeshAgent);
@@ -57,13 +61,17 @@ namespace Assets.Code
                             }
                         }
                     }
+                    float distanceToSummoner = Vector3.Distance(unit.position, unit.gameState.summoner.position);
                     unit.position = savedPosition;
                     if (canUseSkill) {
                         break;
                     }
-                    bestPath = path;
+                    if (distanceToSummoner < closestDistance) {
+                        bestPath = path;
+                        closestDistance = distanceToSummoner;
+                    }
                 }
-                if (bestPath != null) {
+                if (bestPath != null && NavMeshUtil.GetPathLength(bestPath) > .5f) {
                     unit.Move(bestPath);
                     return;
                 }

@@ -27,7 +27,7 @@ public class ChunkInfoScript : MonoBehaviour {
         dy += GRAVITY * Time.deltaTime;
         transform.Translate(0, dy * Time.deltaTime, 0);
         Color c = fadeMaterialCopy.color;
-        c.a = Mathf.SmoothDamp(c.a, 0, ref dAlpha, .5f);
+        c.a = Mathf.SmoothDamp(c.a, 0, ref dAlpha, 1f);
         if (c.a < .01f) {
             Destroy(gameObject);
         }

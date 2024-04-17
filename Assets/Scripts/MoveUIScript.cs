@@ -46,6 +46,7 @@ public class MoveUIScript : MonoBehaviour
         if (!NavMesh.SamplePosition(agent.transform.position, out navMeshHit, AGENT_LOCATION_SAMPLE_DISTANCE, NavMesh.AllAreas)) {
             return;
         }
+        Vector3 pathStart = navMeshHit.position;
         coorsPathable.Add(Vector2Int.zero, navMeshHit.position);
         queue.Enqueue(Vector2Int.zero);
         NavMeshPath path = new NavMeshPath();
@@ -62,7 +63,7 @@ public class MoveUIScript : MonoBehaviour
                 if (!navMeshHit.hit) continue;
                 Vector2 xzDistance = new Vector2(worldSpace.x - navMeshHit.position.x, worldSpace.z - navMeshHit.position.z);
                 if (xzDistance.magnitude > GRID_SIZE * .5f) continue;
-                NavMesh.CalculatePath(unit.position, navMeshHit.position, NavMesh.AllAreas, path);
+                NavMesh.CalculatePath(pathStart, navMeshHit.position, NavMesh.AllAreas, path);
                 if (path.status != NavMeshPathStatus.PathComplete) continue;
                 if (NavMeshUtil.GetPathLength(path) <= unit.movement.x) {
                     coorsPathable.Add(neighbor, navMeshHit.position);
@@ -177,7 +178,10 @@ public class MoveUIScript : MonoBehaviour
             path = new NavMeshPath();
             NavMeshHit navMeshHit;
             if (NavMesh.SamplePosition(unit.position, out navMeshHit, AGENT_LOCATION_SAMPLE_DISTANCE, NavMesh.AllAreas)) {
-                NavMesh.CalculatePath(navMeshHit.position, target, new NavMeshQueryFilter()
+                Vector3 pathStart = navMeshHit.position;
+                NavMesh.SamplePosition(target, out navMeshHit, AGENT_LOCATION_SAMPLE_DISTANCE, NavMesh.AllAreas);
+                target = navMeshHit.position;
+                NavMesh.CalculatePath(pathStart, target, new NavMeshQueryFilter()
                 {
                     agentTypeID = agent.agentTypeID,
                     areaMask = NavMesh.AllAreas,

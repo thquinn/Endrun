@@ -10,7 +10,7 @@ namespace Assets.Code.Model
     {
         public PlayerUpgradeStat stat;
         public UnitTemplate templateNew;
-        public UnitTemplateUpgrade templateToUpgrade;
+        public UnitTemplateUpgrade templateUpgrade;
 
         public PlayerUpgrade(GameState state) {
             float typeSelector = Random.value;
@@ -23,13 +23,13 @@ namespace Assets.Code.Model
             else {
                 float upgradeTemplateChance = Mathf.Sqrt(state.summonTemplates.Count) / 2f;
                 if (Random.value < upgradeTemplateChance) {
-                    templateToUpgrade = new UnitTemplateUpgrade(Util.ChooseRandom(state.summonTemplates));
+                    templateUpgrade = new UnitTemplateUpgrade(Util.ChooseRandom(state.summonTemplates), true);
                 }
                 else {
                     templateNew = Util.ChooseRandom(Balance.PLAYER_SPECIAL_TEMPLATES.Where(t => !state.summonTemplates.Any(t2 => t.name == t2.name)).ToArray());
                     int upgrades = state.summonTemplates.Min(t => t.timesUpgraded);
                     for (int i = 0; i < upgrades; i++) {
-                        new UnitTemplateUpgrade(templateNew).Apply();
+                        new UnitTemplateUpgrade(templateNew, true).Apply();
                     }
                 }
             }
@@ -47,8 +47,8 @@ namespace Assets.Code.Model
             else if (templateNew != null) {
                 state.summonTemplates.Add(templateNew);
             }
-            else if (templateToUpgrade != null) {
-                templateToUpgrade.Apply();
+            else if (templateUpgrade != null) {
+                templateUpgrade.Apply();
             }
             UIScript.instance.lastSkillUnit = null;
         }
@@ -66,9 +66,9 @@ namespace Assets.Code.Model
                 Unit templatedUnit = new Unit(GameStateManagerScript.instance.gameState, UnitControlType.Ally, Vector3.zero, templateNew);
                 return $"Gain a new summon:\n\n{templatedUnit.GetTooltip()}";
             }
-            else if (templateToUpgrade != null) {
-                Unit after = new Unit(GameStateManagerScript.instance.gameState, UnitControlType.Ally, Vector3.zero, templateToUpgrade.Preview());
-                return $"Upgrade a summon:\n\n{after.GetTooltip()}";
+            else if (templateUpgrade != null) {
+                Unit after = new Unit(GameStateManagerScript.instance.gameState, UnitControlType.Ally, Vector3.zero, templateUpgrade.Preview());
+                return $"Upgrade Summon {templateUpgrade.template.name}:\n\n{templateUpgrade}";
             }
             return "???";
         }
@@ -77,7 +77,7 @@ namespace Assets.Code.Model
             if (other == null) return false;
             if (other.stat != stat) return false;
             if (other.templateNew != null) return other.templateNew.Equals(templateNew);
-            if (other.templateToUpgrade != null) return other.templateToUpgrade.Equals(templateToUpgrade);
+            if (other.templateUpgrade != null) return other.templateUpgrade.Equals(templateUpgrade);
             return true;
         }
     }

@@ -1,9 +1,10 @@
+using Assets.Code;
 using Assets.Code.Model;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ChunkDeathWarning : MonoBehaviour
+public class VFXChunkDeathWarning : MonoBehaviour
 {
     public MeshRenderer meshRenderer;
 
@@ -21,7 +22,7 @@ public class ChunkDeathWarning : MonoBehaviour
         Chunk chunk = GameStateManagerScript.instance.gameState.chunks[0];
         transform.localPosition = chunk.position + new Vector3(0, chunk.flipZ ? chunk.yOffsetBack : chunk.yOffsetFront, 10);
         Color c = meshRenderer.material.color;
-        c.a = Mathf.SmoothDamp(c.a, GameStateManagerScript.instance.gameState.chunkTicks <= 20 ? initialAlpha : 0, ref vAlpha, .5f);
+        c.a = Mathf.SmoothDamp(c.a, GameStateManagerScript.instance.gameState.chunkTicks <= Constants.UI_WARN_TICKS ? initialAlpha : 0, ref vAlpha, .5f);
         meshRenderer.material.color = c;
     }
 }

@@ -28,7 +28,7 @@ namespace Assets.Code.Animation
 
         public override void Update() {
             base.Update();
-            unit.MoveTo(NavMeshUtil.GetPointAlongPath(navMeshPath, time.x / time.y));
+            unit.MoveTo(NavMeshUtil.GetPointAlongPath(navMeshPath, GetEasedPercentage()));
         }
         public override void Finish() {
             unit.MoveTo(navMeshPath.corners[navMeshPath.corners.Length - 1]);
@@ -38,7 +38,11 @@ namespace Assets.Code.Animation
             return unit == this.unit;
         }
         public float GetAnimatedMovementRemaining() {
-            return unit.movement.x + pathLength * (1 - time.x / time.y);
+            return unit.movement.x + pathLength * (1 - GetEasedPercentage());
+        }
+
+        float GetEasedPercentage() {
+            return EasingFunctions.EaseInOutQuad(0, 1, time.x / time.y);
         }
     }
 }

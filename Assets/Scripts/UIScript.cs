@@ -1,3 +1,4 @@
+using Assets.Code;
 using Assets.Code.Model;
 using Assets.Code.Model.Skills;
 using System.Collections;
@@ -115,6 +116,7 @@ public class UIScript : MonoBehaviour
         float x = Mathf.SmoothDamp(rtChunkTimer.anchoredPosition.x, targetX, ref vChunkTimer, .2f);
         rtChunkTimer.anchoredPosition = new Vector2(x, 0);
         canvasGroupChunkTimer.alpha = Mathf.SmoothDamp(canvasGroupChunkTimer.alpha, 1, ref vChunkTimerAlpha, .2f);
-        canvasGroupTimerWarning.alpha = Mathf.SmoothDamp(canvasGroupTimerWarning.alpha, ticks > 20 ? 0 : 1, ref vTimerWarningAlpha, .2f);
+        bool showWarning = ticks <= Constants.UI_WARN_TICKS && gameStateManagerScript.gameState.level == 0;
+        canvasGroupTimerWarning.alpha = Mathf.SmoothDamp(canvasGroupTimerWarning.alpha, showWarning ? 1 : 0, ref vTimerWarningAlpha, .2f);
     }
 }

@@ -51,7 +51,7 @@ namespace Assets.Code
             for (int i = 0; i < upgradeBudget; i++) {
                 UnitTemplate enemyTemplate = Util.ChooseRandom(enemyTemplates);
                 // Pick a non-new-skill upgrade, if possible.
-                UnitTemplateUpgrade[] upgrades = new UnitTemplateUpgrade[] { new UnitTemplateUpgrade(enemyTemplate), new UnitTemplateUpgrade(enemyTemplate) };
+                UnitTemplateUpgrade[] upgrades = new UnitTemplateUpgrade[] { new UnitTemplateUpgrade(enemyTemplate, false), new UnitTemplateUpgrade(enemyTemplate, false) };
                 UnitTemplateUpgrade nonNewSkill = upgrades.FirstOrDefault(u => u.skillNew == null);
                 UnitTemplateUpgrade upgrade = nonNewSkill ?? upgrades[0];
                 upgrade.Apply();
@@ -61,7 +61,8 @@ namespace Assets.Code
                 UnitTemplate enemyTemplate = Util.ChooseRandom(enemyTemplates);
                 float cost = 1f + enemyTemplate.timesUpgraded * .33f;
                 if (enemyBudget < cost) continue;
-                gameState.AddUnit(new Unit(gameState, UnitControlType.Enemy, spawnPoints.Dequeue(), enemyTemplate));
+                Unit enemy = new Unit(gameState, UnitControlType.Enemy, spawnPoints.Dequeue(), enemyTemplate);
+                gameState.AddUnit(enemy);
                 enemyBudget -= cost;
             }
             // Mana crystals.
@@ -103,6 +104,15 @@ namespace Assets.Code
         }
 
         static UnitTemplate[] GetEnemyTemplates(int n) {
+            while (true) {
+                UnitTemplate[] templates = GetEnemyTemplatesInternal(n);
+                if (templates.All(u => u.iconID == TEMPLATE_MEDIC.iconID)) {
+                    continue;
+                }
+                return templates;
+            }
+        }
+        static UnitTemplate[] GetEnemyTemplatesInternal(int n) {
             List<UnitTemplate> enemyTemplates = new List<UnitTemplate>();
             float enemyTemplateWeightsSum = ENEMY_TEMPLATE_WEIGHTS.Values.Sum();
             while (enemyTemplates.Count < n) {
@@ -111,7 +121,7 @@ namespace Assets.Code
                     selector -= kvp.Value;
                     if (selector < 0) {
                         if (!enemyTemplates.Any(t => t.name == kvp.Key.name)) {
-                            enemyTemplates.Add(kvp.Key);
+                            enemyTemplates.Add(new UnitTemplate(kvp.Key));
                         }
                         break;
                     }
