@@ -80,17 +80,27 @@ namespace Assets.Code.Model
             if (chunks.Count >= 2) {
                 chunks.RemoveAt(0);
                 level++;
-                playerUpgradeDecision = new PlayerUpgrade[] { new PlayerUpgrade(this), new PlayerUpgrade(this) };
             }
             int chunkIndex = GameStateManagerScript.instance.GetRandomChunkIndex();
             chunks.Add(new Chunk(chunkIndex, Random.value < .5f, Random.value < .5f));
-            RemoveOldMana();
             chunkTicks = Constants.BALANCE_CHUNK_TIMER;
             gameEventManager.Trigger(new GameEvent() {
                 type = GameEventType.LevelStart,
             });
         }
-        void RemoveOldMana() {
+        public void InitPlayerDecision() {
+            PlayerUpgrade one = GetRandomUpgrade(), two = GetRandomUpgrade();
+            while (one.Equals(two)) {
+                two = GetRandomUpgrade();
+            }
+            playerUpgradeDecision = new PlayerUpgrade[] { one, two };
+        }
+        PlayerUpgrade GetRandomUpgrade() {
+            PlayerUpgrade upgrade = new PlayerUpgrade(this);
+            while (level <= 1 && upgrade.templateNew == null) upgrade = new PlayerUpgrade(this);
+            return upgrade;
+        }
+        public void RemoveOldMana() {
             for (int i = manaCrystals.Count - 1; i >= 0; i--) {
                 if (manaCrystals[i].IsOffChunks()) {
                     manaCrystals.RemoveAt(i);

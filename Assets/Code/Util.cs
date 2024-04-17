@@ -15,6 +15,14 @@ namespace Assets.Code
         public static float NormalizedSin(float f) {
             return Mathf.Sin(f) * .5f + .5f;
         }
+        // Somewhere between linear and sqrt.
+        // At a=0, this is sqrt. As a approaches infinity, this approaches linearity.
+        // It's a different looking curve than just interpolating from sqrt to linear,
+        // which always looks linear after a point. This is the opposite, where it starts
+        // off looking linear and then becomes a sqrt.
+        public static float FalloffCurve(float x, float a) {
+            return (Mathf.Sqrt(x + a) - Mathf.Sqrt(a)) / (Mathf.Sqrt(a + 1) / Mathf.Sqrt(a));
+        }
 
         public static List<T> Shuffle<T>(this List<T> list) {
             int n = list.Count;

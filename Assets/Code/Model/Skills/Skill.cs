@@ -52,7 +52,7 @@ namespace Assets.Code.Model.Skills
             if (cooldown > 0) {
                 return false;
             }
-            if (GameStateManagerScript.instance.animationManager.IsAnythingAnimating()) {
+            if (!GameStateManagerScript.instance.PlayerCanInput()) {
                 return false;
             }
             return true;
@@ -125,6 +125,11 @@ namespace Assets.Code.Model.Skills
         }
         public override string ToString() {
             return $"<b>{GetLeveledName()}</b>    {GetDescription()}";
+        }
+        public override bool Equals(object obj) {
+            Skill other = obj as Skill;
+            if (other == null) return false;
+            return other.name == name && other.level == level;
         }
         public string GetLeveledName() {
             return level <= 1 ? name : $"{name} {Util.ToRoman(level)}";

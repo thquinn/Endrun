@@ -12,7 +12,7 @@ public class MoveUIScript : MonoBehaviour
 {
     static Vector2Int[] NEIGHBOR_DIRECTIONS = new Vector2Int[] { new Vector2Int(-1, -1), new Vector2Int(0, -1), new Vector2Int(1, -1), new Vector2Int(-1, 0), new Vector2Int(1, 0), new Vector2Int(1, -1), new Vector2Int(1, 0), new Vector2Int(1, 1) };
     static float GRID_SIZE = .33f;
-    static float AGENT_LOCATION_SAMPLE_DISTANCE = .5f;
+    static float AGENT_LOCATION_SAMPLE_DISTANCE = 10f;
 
     public static bool disableMouseOneFrame;
 
@@ -141,7 +141,7 @@ public class MoveUIScript : MonoBehaviour
         bool click = !disableMouseOneFrame && Input.GetMouseButtonDown(0);
         disableMouseOneFrame = false;
         Unit unitToShow = GameStateManagerScript.instance.GetActiveUnit();
-        if (unitToShow != null && (!unitToShow.playerControlled || GameStateManagerScript.instance.animationManager.IsAnythingAnimating() || unitToShow.movement.x <= 0)) {
+        if (unitToShow != null && (!unitToShow.playerControlled || !GameStateManagerScript.instance.PlayerCanInput() || unitToShow.movement.x <= 0)) {
             unitToShow = null;
         }
         if (GameStateManagerScript.instance.gameState.skillDecision != null) {

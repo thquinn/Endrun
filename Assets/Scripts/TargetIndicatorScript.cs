@@ -40,14 +40,18 @@ public class TargetIndicatorScript : MonoBehaviour
 
     void Update() {
         bool targetable = GameStateManagerScript.instance.gameState.skillDecision?.IsValid(unitScript.unit) == true;
-        bool tooltipped = UITooltipScript.instance.lastHovered == unitScript.unit;
+        bool tooltipped = UITooltipScript.instance.lastHovered == unitScript.unit && UITooltipScript.instance.hoveredBehavior != unitScript;
         bool active = targetable || tooltipped;
         bool targeting = targetable && GameStateManagerScript.instance.hoveredUnit == unitScript.unit;
         if (!active && arrowRenderers[0].color.a <= 0) return;
 
         spin += Time.deltaTime * (targeting ? 1.5f : .66f);
         Vector3 spinVector = new Vector3(Mathf.Cos(spin), 0, Mathf.Sin(spin));
-        transform.rotation = Quaternion.LookRotation(NavMeshUtil.GetChunksNormal(transform.position), spinVector);
+        Vector3 chunksNormal = NavMeshUtil.GetChunksNormal(transform.position);
+        if (chunksNormal == Vector3.zero) {
+            chunksNormal = Vector3.up;
+        }
+        transform.rotation = Quaternion.LookRotation(chunksNormal, spinVector);
 
         float targetAlpha = active ? 1 : 0;
         float alpha = Mathf.SmoothDamp(arrowRenderers[0].color.a, targetAlpha, ref vAlpha, .1f);

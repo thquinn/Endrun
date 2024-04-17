@@ -13,7 +13,7 @@ public class VFXGlowPulseScript : MonoBehaviour
 
     void Start() {
         initialScale = transform.localScale;
-        rate = Random.Range(4f, 6f);
+        rate = Random.Range(2f, 3f);
         time = Random.Range(0, rate);
     }
 

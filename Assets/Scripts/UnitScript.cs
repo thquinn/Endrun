@@ -58,6 +58,7 @@ public class UnitScript : TooltipBehavior
     }
 
     void Update() {
+        meshContainer.gameObject.SetActive(!unit.isSummoner || !GameStateManagerScript.IsGameOver());
         transform.localPosition = unit.position;
         bool isActive = gameStateManager.GetActiveUnit() == unit;
         bool showTurnIndicator = isActive && unit.playerControlled;

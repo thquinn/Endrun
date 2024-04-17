@@ -35,13 +35,23 @@ namespace Assets.Code.Model
             skills = other.skills.Select(s => s.Clone()).ToList();
             timesUpgraded = 0;
         }
+
+        public override bool Equals(object obj) {
+            UnitTemplate other = obj as UnitTemplate;
+            if (other == null) return false;
+            bool statsEqual = other.name == name && other.iconID == iconID && other.hp == hp && other.movement == movement && other.focusCost == focusCost;
+            if (!statsEqual) return false;
+            if (other.skills.Count != skills.Count) return false;
+            bool skillsEqual = other.skills.All(s => skills.Contains(s)) && skills.All(s => other.skills.Contains(s));
+            return skillsEqual;
+        }
     }
 
     public class UnitTemplateUpgrade
     {
         public UnitTemplate template;
         public UnitTemplateUpgradeStat stat;
-        public Skill skillUpgrade, newSkill;
+        public Skill skillToUpgrade, skillNew;
 
         public UnitTemplateUpgrade(UnitTemplate template) {
             this.template = template;
@@ -53,38 +63,49 @@ namespace Assets.Code.Model
             } else {
                 float upgradeSkillChance = Mathf.Sqrt(template.skills.Count) / 2f;
                 if (Random.value < upgradeSkillChance) {
-                    skillUpgrade = Util.ChooseRandom(template.skills);
+                    skillToUpgrade = Util.ChooseRandom(template.skills);
                 } else {
-                    newSkill = Util.ChooseRandom(UPGRADE_SKILLS.Where(s => !template.skills.Any(s2 => s.name == s2.name)).ToArray()).Clone();
-                    newSkill.level = template.skills.Count == 0 ? 0 : template.skills.Min(s => s.level);
+                    skillNew = Util.ChooseRandom(UPGRADE_SKILLS.Where(s => !template.skills.Any(s2 => s.name == s2.name)).ToArray()).Clone();
+                    skillNew.level = template.skills.Count == 0 ? 0 : template.skills.Min(s => s.level);
                 }
             }
         }
 
         public UnitTemplate Preview() {
-            return ApplyInternal(new UnitTemplate(template));
+            UnitTemplate copy = new UnitTemplate(template);
+            ApplyInternal(copy);
+            return copy;
         }
         public void Apply() {
             ApplyInternal(template);
         }
-        UnitTemplate ApplyInternal(UnitTemplate templateCopy) {
+        void ApplyInternal(UnitTemplate templateCopy) {
             if (stat == UnitTemplateUpgradeStat.HP) {
                 templateCopy.hp += Constants.UPGRADE_UNIT_HP;
             }
             else if (stat == UnitTemplateUpgradeStat.Movement) {
                 templateCopy.movement += Constants.UPGRADE_UNIT_MOVEMENT;
             }
-            else if (skillUpgrade != null) {
-                skillUpgrade.level++;
+            else if (skillToUpgrade != null) {
+                templateCopy.skills.First(s => s.name == skillToUpgrade.name).level++;
             }
-            else if (newSkill != null) {
-                templateCopy.skills.Add(newSkill);
+            else if (skillNew != null) {
+                templateCopy.skills.Add(skillNew);
             }
             templateCopy.timesUpgraded++;
             if (templateCopy.timesUpgraded % Constants.UPGRADES_PER_FOCUS_COST_INCREASE == 0) {
                 templateCopy.focusCost++;
             }
-            return templateCopy;
+        }
+
+        public override bool Equals(object obj) {
+            UnitTemplateUpgrade other = obj as UnitTemplateUpgrade;
+            if (other == null) return false;
+            if (!other.template.Equals(template)) return false;
+            if (other.stat != stat) return false;
+            if (other.skillNew != null) return other.skillNew.Equals(skillNew);
+            if (other.skillToUpgrade != null) return other.skillToUpgrade.Equals(skillToUpgrade);
+            return true;
         }
 
         static Skill[] UPGRADE_SKILLS = new Skill[] {

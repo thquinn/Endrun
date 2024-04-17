@@ -8,6 +8,8 @@ using UnityEngine;
 
 public class UIScript : MonoBehaviour
 {
+    public static UIScript instance;
+
     static KeyCode[] SKILL_HOTKEYS = new KeyCode[] { KeyCode.Z, KeyCode.X, KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4,
                                                      KeyCode.Alpha5, KeyCode.Alpha6, KeyCode.Alpha7, KeyCode.Alpha8, KeyCode.Alpha9, KeyCode.Alpha0 };
 
@@ -15,17 +17,18 @@ public class UIScript : MonoBehaviour
 
     public GameStateManagerScript gameStateManagerScript;
     public RectTransform rtLeftUnits, rtSkillBar, rtTurnOrderList, rtChunkTimer;
-    public CanvasGroup canvasGroupSkillBar, canvasGroupChunkTimer;
+    public CanvasGroup canvasGroupSkillBar, canvasGroupChunkTimer, canvasGroupTimerWarning;
     public TextMeshProUGUI tmpChunkTimerTicks, tmpChunkTimerLabel;
 
     Dictionary<Unit, UILeftUnitScript> leftUnitScripts;
     Dictionary<Unit, UIUnitTurnScript> unitTurnScripts;
 
-    Unit lastSkillUnit;
+    public Unit lastSkillUnit;
     GameState lastTurnGameState;
-    float vChunkTimer, vChunkTimerAlpha;
+    float vChunkTimer, vChunkTimerAlpha, vTimerWarningAlpha;
 
     void Start() {
+        instance = this;
         leftUnitScripts = new Dictionary<Unit, UILeftUnitScript>();
         unitTurnScripts = new Dictionary<Unit, UIUnitTurnScript>();
         canvasGroupChunkTimer.alpha = 0;
@@ -57,12 +60,15 @@ public class UIScript : MonoBehaviour
     void SyncSkillBar() {
         Unit activeUnit = gameStateManagerScript.GetActiveUnit();
         if (!activeUnit?.playerControlled == true) activeUnit = null;
+        if (gameStateManagerScript.gameState.playerUpgradeDecision != null) activeUnit = null;
         if (lastSkillUnit != activeUnit) {
             foreach (Transform child in rtSkillBar) {
                 Destroy(child.gameObject);
             }
             List<Skill> skills = new List<Skill>();
-            skills.Add(new FakeSkillUndo());
+            if (gameStateManagerScript.gameState.playerUpgradeDecision == null) {
+                skills.Add(new FakeSkillUndo());
+            }
             if (activeUnit != null) {
                 skills.Add(new FakeSkillEndTurn(activeUnit));
                 if (activeUnit.isSummoner) {
@@ -109,5 +115,6 @@ public class UIScript : MonoBehaviour
         float x = Mathf.SmoothDamp(rtChunkTimer.anchoredPosition.x, targetX, ref vChunkTimer, .2f);
         rtChunkTimer.anchoredPosition = new Vector2(x, 0);
         canvasGroupChunkTimer.alpha = Mathf.SmoothDamp(canvasGroupChunkTimer.alpha, 1, ref vChunkTimerAlpha, .2f);
+        canvasGroupTimerWarning.alpha = Mathf.SmoothDamp(canvasGroupTimerWarning.alpha, ticks > 20 ? 0 : 1, ref vTimerWarningAlpha, .2f);
     }
 }

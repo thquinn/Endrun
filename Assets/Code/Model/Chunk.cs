@@ -11,6 +11,7 @@ namespace Assets.Code.Model
         public int index;
         public Vector3 position;
         public bool flipX, flipZ;
+        public float yOffsetBack, yOffsetFront;
 
         public Chunk(int index, bool flipX, bool flipZ) {
             this.index = index;

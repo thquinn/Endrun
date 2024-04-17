@@ -10,18 +10,16 @@ public class CameraScript : MonoBehaviour
     public float minDistance, maxDistance, sensitivity, scrollSensitivity, panSensitivity, rotateSensitivity;
     float horizontalAngle = Mathf.PI * 2 / 3;
     float verticalAngle = Mathf.PI / 6;
-    bool firstUpdate;
     bool firstInput;
     Vector3 pan;
     bool revertPan;
     Vector3 vRevertPan;
 
     void Update() {
-        if (!firstUpdate) {
+        if (chunksCenter == Vector3.zero) {
             chunksCenter = Util.GetChunksCenter(gameObject.scene);
-            firstUpdate = true;
         } else {
-            chunksCenter = Vector3.SmoothDamp(chunksCenter, Util.GetChunksCenter(gameObject.scene), ref vCenter, .33f);
+            chunksCenter = Vector3.SmoothDamp(chunksCenter, Util.GetChunksCenter(gameObject.scene), ref vCenter, .5f);
         }
 
         // Input.

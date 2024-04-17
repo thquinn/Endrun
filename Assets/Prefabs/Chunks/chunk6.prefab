@@ -55,6 +55,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34bdc27315aaeb94bba39acc3b8746e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  materialChunkFade: {fileID: 2100000, guid: a6440a6322a0ea44b9b8fb9ae8a4a168, type: 2}
   yOffsetBack: 0
   yOffsetFront: 0
   weight: 1

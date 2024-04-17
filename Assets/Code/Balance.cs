@@ -19,7 +19,7 @@ namespace Assets.Code
         static UnitTemplate TEMPLATE_MERIDIAN = new UnitTemplate("Meridian", "meridian", 5, 7, 3, new SkillAccelerate(1), new SkillTeleport(1));
         static UnitTemplate TEMPLATE_SNIPER = new UnitTemplate("Sniper", "sniper", 5, 10, 3, new SkillArrow(1));
         static UnitTemplate TEMPLATE_VAMPIRE = new UnitTemplate("Vampire", "vampire", 5, 5, 4, new SkillMeleeAttack(1), new SkillDrink(1));
-        static UnitTemplate TEMPLATE_WARRIOR = new UnitTemplate("Warrior", "warrior", 8, 10, 3, new SkillMeleeAttack(2), new SkillSuplex(1));
+        static UnitTemplate TEMPLATE_WARRIOR = new UnitTemplate("Warrior", "warrior", 8, 10, 3, new SkillMeleeAttack(1), new SkillSuplex(1));
         public static UnitTemplate[] PLAYER_SPECIAL_TEMPLATES = new UnitTemplate[] { TEMPLATE_BOMB, TEMPLATE_BRUTE, TEMPLATE_CRYSTAL, TEMPLATE_MEDIC, TEMPLATE_MERIDIAN, TEMPLATE_VAMPIRE };
         static Dictionary<UnitTemplate, float> ENEMY_TEMPLATE_WEIGHTS = new Dictionary<UnitTemplate, float>() {
             { TEMPLATE_BOMB, .5f },
@@ -52,7 +52,7 @@ namespace Assets.Code
                 UnitTemplate enemyTemplate = Util.ChooseRandom(enemyTemplates);
                 // Pick a non-new-skill upgrade, if possible.
                 UnitTemplateUpgrade[] upgrades = new UnitTemplateUpgrade[] { new UnitTemplateUpgrade(enemyTemplate), new UnitTemplateUpgrade(enemyTemplate) };
-                UnitTemplateUpgrade nonNewSkill = upgrades.FirstOrDefault(u => u.newSkill == null);
+                UnitTemplateUpgrade nonNewSkill = upgrades.FirstOrDefault(u => u.skillNew == null);
                 UnitTemplateUpgrade upgrade = nonNewSkill ?? upgrades[0];
                 upgrade.Apply();
             }
@@ -88,12 +88,18 @@ namespace Assets.Code
             Vector3 position = chunk.position + new Vector3(Random.Range(-9f, 9f), 0, Random.Range(-9, 9f));
             NavMeshHit navMeshHit;
             NavMesh.SamplePosition(position, out navMeshHit, 10f, NavMesh.AllAreas);
-            if (navMeshHit.hit) {
-                Debug.DrawLine(position, navMeshHit.position, Color.white, 1000);
-            } else {
-                Debug.DrawLine(position, position + Vector3.up, Color.red, 1000);
+            position = navMeshHit.position;
+            if (position.x == float.NegativeInfinity) return position;
+            // Make sure the point has a path to the "main area" of the chunk.
+            Vector3 chunkStart = chunk.position + new Vector3(0, .5f, -10);
+            NavMesh.SamplePosition(chunkStart, out navMeshHit, 10f, NavMesh.AllAreas);
+            chunkStart = navMeshHit.position;
+            NavMeshPath path = new NavMeshPath();
+            NavMesh.CalculatePath(position, chunkStart, NavMesh.AllAreas, path);
+            if (path.status != NavMeshPathStatus.PathComplete) {
+                return Vector3.positiveInfinity;
             }
-            return navMeshHit.position;
+            return position;
         }
 
         static UnitTemplate[] GetEnemyTemplates(int n) {
@@ -113,71 +119,5 @@ namespace Assets.Code
             }
             return enemyTemplates.ToArray();
         }
-    }
-
-    public class PlayerUpgrade {
-        public PlayerUpgradeStat stat;
-        public UnitTemplate templateNew;
-        public UnitTemplateUpgrade templateUpgrade;
-
-        public PlayerUpgrade(GameState state) {
-            float typeSelector = Random.value;
-            if (typeSelector < .2f) {
-                stat = PlayerUpgradeStat.HP;
-            }
-            else if (typeSelector < .3f) {
-                stat = PlayerUpgradeStat.Movement;
-            }
-            else {
-                float upgradeTemplateChance = Mathf.Sqrt(state.summonTemplates.Count) / 2f;
-                if (Random.value < upgradeTemplateChance) {
-                    templateUpgrade = new UnitTemplateUpgrade(Util.ChooseRandom(state.summonTemplates));
-                }
-                else {
-                    templateNew = Util.ChooseRandom(Balance.PLAYER_SPECIAL_TEMPLATES.Where(t => !state.summonTemplates.Any(t2 => t.name == t2.name)).ToArray());
-                    int upgrades = state.summonTemplates.Min(t => t.timesUpgraded);
-                    for (int i = 0; i < upgrades; i++) {
-                        new UnitTemplateUpgrade(templateNew).Apply();
-                    }
-                }
-            }
-        }
-        public void Apply(GameState state) {
-            if (stat == PlayerUpgradeStat.HP) {
-                state.units.First(u => u.isSummoner).GainMaxHP(Constants.UPGRADE_UNIT_HP);
-            } else if (stat == PlayerUpgradeStat.Movement) {
-                state.units.First(u => u.isSummoner).movement.y += Constants.UPGRADE_UNIT_MOVEMENT;
-            } else if (stat == PlayerUpgradeStat.Focus) {
-                state.maxFocus += Constants.UPGRADE_MAX_FOCUS;
-            } else if (templateNew != null) {
-                state.summonTemplates.Add(templateNew);
-            } else if (templateUpgrade != null) {
-                templateUpgrade.Apply();
-            }
-        }
-        public override string ToString() {
-            if (stat == PlayerUpgradeStat.HP) {
-                return $"Your summoner gains {Constants.UPGRADE_UNIT_HP} max HP.";
-            }
-            else if (stat == PlayerUpgradeStat.Movement) {
-                return $"Your summoner gets {Constants.UPGRADE_UNIT_MOVEMENT}m move.";
-            }
-            else if (stat == PlayerUpgradeStat.Focus) {
-                return $"Your summoner gains {Constants.UPGRADE_MAX_FOCUS} more focus.";
-            }
-            else if (templateNew != null) {
-                Unit templatedUnit = new Unit(GameStateManagerScript.instance.gameState, UnitControlType.Ally, Vector3.zero, templateNew);
-                return $"Gain a new summon:\n\n{templatedUnit.GetTooltip()}";
-            }
-            else if (templateUpgrade != null) {
-                Unit after = new Unit(GameStateManagerScript.instance.gameState, UnitControlType.Ally, Vector3.zero, templateUpgrade.Preview());
-                return $"Upgrade a summon:\n\n{after.GetTooltip()}";
-            }
-            return "???";
-        }
-    }
-
-    public enum PlayerUpgradeStat {
-        None, HP, Movement, Focus
     }
 }

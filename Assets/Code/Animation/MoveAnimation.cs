@@ -30,6 +30,9 @@ namespace Assets.Code.Animation
             base.Update();
             unit.MoveTo(NavMeshUtil.GetPointAlongPath(navMeshPath, time.x / time.y));
         }
+        public override void Finish() {
+            unit.MoveTo(navMeshPath.corners[navMeshPath.corners.Length - 1]);
+        }
 
         public override bool IsUnitAnimating(Unit unit) {
             return unit == this.unit;

@@ -18,12 +18,13 @@ public class UIButtonHoverAlphaScript : MonoBehaviour
     void Update() {
         Color c = image.color;
         c.a = Mathf.SmoothDamp(c.a, !hovered ? initialAlpha : initialAlpha + deltaAlpha, ref vAlpha, .1f);
+        image.color = c;
     }
 
-    private void OnMouseEnter() {
+    public void OnPointerEnter() {
         hovered = true;   
     }
-    private void OnMouseExit() {
+    public void OnPointerExit() {
         hovered = false;
     }
 }

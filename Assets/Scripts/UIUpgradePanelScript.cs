@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class UIUpgradePanelScript : MonoBehaviour
 {
@@ -31,12 +32,22 @@ public class UIUpgradePanelScript : MonoBehaviour
         }
     }
 
-    public void Click(int i) {
+    public void ClickLeft(BaseEventData e) {
+        if ((e as PointerEventData).button != PointerEventData.InputButton.Left) return;
+        ClickIndex(0);
+    }
+    public void ClickRight(BaseEventData e) {
+        if ((e as PointerEventData).button != PointerEventData.InputButton.Left) return;
+        ClickIndex(1);
+    }
+    public void ClickSkip(BaseEventData e) {
+        if ((e as PointerEventData).button != PointerEventData.InputButton.Left) return;
+        GameStateManagerScript.instance.gameState.playerUpgradeDecision = null;
+    }
+    void ClickIndex(int i) {
         GameState gameState = GameStateManagerScript.instance.gameState;
         if (gameState.playerUpgradeDecision == null) return;
-        if (i < 2) {
-            lastChoice[i].Apply(gameState);
-        }
-        gameState.playerUpgradeDecision = null;
+        lastChoice[i].Apply(gameState);
+        GameStateManagerScript.instance.gameState.playerUpgradeDecision = null;
     }
 }

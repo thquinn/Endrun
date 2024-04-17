@@ -60,6 +60,9 @@ public class GameStateManagerScript : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.F2)) {
             gameState.AddChunk();
         }
+        if (Input.GetKeyDown(KeyCode.F3)) {
+            gameState.InitPlayerDecision();
+        }
         // END DEBUG
         SyncChunks();
         SyncUnits();
@@ -90,12 +93,13 @@ public class GameStateManagerScript : MonoBehaviour
                     chunk.position.z += 20;
                     chunkScript.transform.position = chunk.position;
                 }
+                chunk.yOffsetBack = chunkScript.yOffsetBack;
+                chunk.yOffsetFront = chunkScript.yOffsetFront;
             }
         }
         var nulls = chunkScripts.Keys.Where(c => !gameState.chunks.Contains(c)).ToArray();
         foreach (Chunk chunk in nulls) {
-            chunkScripts[chunk].gameObject.SetActive(false);
-            Destroy(chunkScripts[chunk].gameObject);
+            chunkScripts[chunk].Destroy();
             chunkScripts.Remove(chunk);
             changes = true;
         }
@@ -104,11 +108,14 @@ public class GameStateManagerScript : MonoBehaviour
                 unitScript.ToggleCollider(false);
             }
             navMeshSurface.BuildNavMesh();
-            if (undo) {
+            if (!undo) {
                 KillOffMeshUnits();
                 undoHistory.Clear();
+                Balance.InitializeNewChunk(gameState);
+                if (!gameState.IsGameOver() && gameState.level > 0) {
+                    gameState.InitPlayerDecision();
+                }
             }
-            Balance.InitializeNewChunk(gameState);
             ToggleColliders();
         }
     }
@@ -134,6 +141,7 @@ public class GameStateManagerScript : MonoBehaviour
         }
         if (changes) {
             ToggleColliders();
+            navMeshSurface.BuildNavMesh();
         }
     }
     void SyncMana() {
@@ -186,10 +194,14 @@ public class GameStateManagerScript : MonoBehaviour
             }
         }
         gameState.RemoveDeadUnits();
+        gameState.RemoveOldMana();
     }
 
     public Unit GetActiveUnit() {
         return gameState.GetActiveUnit();
+    }
+    public bool PlayerCanInput() {
+        return !animationManager.IsAnythingAnimating() && gameState.playerUpgradeDecision == null;
     }
     public static bool IsGameOver() {
         return instance.gameState.IsGameOver();
