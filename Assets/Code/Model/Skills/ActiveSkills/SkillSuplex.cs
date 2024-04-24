@@ -61,7 +61,7 @@ namespace Assets.Code.Model.Skills.ActiveSkills
             if (hit.hit) {
                 GameStateManagerScript.instance.EnqueueAnimation(new ThrowUnitAnimation(target, target.position, placementPosition, 4));
             }
-            unit.Attack(target, GetDamage());
+            GameStateManagerScript.instance.EnqueueAnimation(new DelayedAttackAnimation(unit, target, GetDamage()));
             AfterResolve();
         }
     }

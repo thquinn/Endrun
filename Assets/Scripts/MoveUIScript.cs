@@ -59,7 +59,7 @@ public class MoveUIScript : MonoBehaviour
                 Vector3 worldSpace = agent.transform.position;
                 worldSpace.x += neighbor.x * GRID_SIZE;
                 worldSpace.z += neighbor.y * GRID_SIZE;
-                NavMesh.SamplePosition(worldSpace, out navMeshHit, 3f, NavMesh.AllAreas);
+                NavMesh.SamplePosition(worldSpace, out navMeshHit, 10f, NavMesh.AllAreas);
                 if (!navMeshHit.hit) continue;
                 Vector2 xzDistance = new Vector2(worldSpace.x - navMeshHit.position.x, worldSpace.z - navMeshHit.position.z);
                 if (xzDistance.magnitude > GRID_SIZE * .5f) continue;

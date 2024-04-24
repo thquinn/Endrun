@@ -40,15 +40,17 @@ public class UIUpgradePanelScript : MonoBehaviour
         if ((e as PointerEventData).button != PointerEventData.InputButton.Left) return;
         ClickIndex(1);
     }
-    public void ClickSkip(BaseEventData e) {
-        if ((e as PointerEventData).button != PointerEventData.InputButton.Left) return;
-        GameStateManagerScript.instance.gameState.playerUpgradeDecision = null;
-        SFXScript.SFXClick();
-    }
     void ClickIndex(int i) {
         GameState gameState = GameStateManagerScript.instance.gameState;
         if (gameState.playerUpgradeDecision == null) return;
         lastChoice[i].Apply(gameState);
+        GameStateManagerScript.instance.gameState.playerUpgradeDecision = null;
+        SFXScript.SFXClick();
+    }
+
+    public void ClickSkip(BaseEventData e) {
+        if ((e as PointerEventData).button != PointerEventData.InputButton.Left) return;
+        if (GameStateManagerScript.instance.gameState.playerUpgradeDecision == null) return;
         GameStateManagerScript.instance.gameState.playerUpgradeDecision = null;
         SFXScript.SFXClick();
     }

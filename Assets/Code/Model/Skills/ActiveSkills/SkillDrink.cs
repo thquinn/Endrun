@@ -44,7 +44,7 @@ namespace Assets.Code.Model.Skills.ActiveSkills
             base.Resolve(choice);
             Unit target = choice as Unit;
             unit.Attack(target, GetDamage());
-            if (unit.dead) {
+            if (target.dead) {
                 Skill melee = unit.skills.First(u => u is SkillMeleeAttack);
                 if (melee != null) {
                     melee.level++;

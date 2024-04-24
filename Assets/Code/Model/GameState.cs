@@ -86,6 +86,7 @@ namespace Assets.Code.Model
                     if (unit.playerControlled) {
                         unit.Heal(2);
                     }
+                    maxFocus++;
                 }
             }
             int chunkIndex = GameStateManagerScript.instance.GetRandomChunkIndex();
@@ -104,7 +105,7 @@ namespace Assets.Code.Model
         }
         PlayerUpgrade GetRandomUpgrade() {
             PlayerUpgrade upgrade = new PlayerUpgrade(this);
-            while (level <= 1 && upgrade.templateNew == null) upgrade = new PlayerUpgrade(this);
+            while (summonTemplates.Count <= 2 && upgrade.templateNew == null) upgrade = new PlayerUpgrade(this);
             return upgrade;
         }
         public void RemoveOldMana() {
